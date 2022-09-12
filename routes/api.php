@@ -320,6 +320,19 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 					//'middleware' => 'init',
 					'uses' => 'FetchAccountDetails'
 				]);
+
+				//This will be for later - an option to use the crypto wallet payment option:
+				/*Route::post('upload/crypto/wallet/details', [
+					'as' => 'buyer.upload.crypto.wallet.details', 
+					//'middleware' => 'init',
+					'uses' => 'UploadCryptoWalletDetails'
+				]);
+
+				Route::post('fetch/crypto/wallet/details', [
+					'as' => 'buyer.fetch.crypto.wallet.details', 
+					//'middleware' => 'init',
+					'uses' => 'FetchCryptoWalletDetails'
+				]);*/
 			});
 
 		});
@@ -328,53 +341,50 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 		
 		Route::group(['prefix' => 'execute/payment', /*'middleware' => ['DeleteEmptyBillingAndShipping']*/], function()
 		{
-			/*Buyer's Credit Card or other details of means of payment ....
-			note:this should be encrypted...*/
-			Route::post('make/payment/with/new/card/details', [
-				//'as' => 'make_payment',
-				//'middleware' => 'init',
-				'uses' => '\Buyer\BuyerPaymentExecuteController@MakePaymentWithNewCard'
-			]);
+			
+			Route::controller(App\Http\Controllers\Buyer\BuyerPaymentExecuteController::class)->group(function()
+			{
+				/*Buyer's Credit Card or other details of means of payment ....
+				note:this should be encrypted...*/
+				Route::post('make/payment/with/new/card/details', [
+					'as' => 'buyer.pay.with.new.card',
+					//'middleware' => 'init',
+					'uses' => 'MakePaymentWithNewCard'
+				]);
 
-			Route::patch('make/payment/with/saved/card/details', [
-				//'as' => 'make_payment',
-				//'middleware' => 'init',
-				'uses' => '\Buyer\BuyerPaymentExecuteController@MakePaymentWithSavedCard'
-			]);
-
-
-			Route::patch('make/payment/with/new/bank/details', [
-				//'as' => 'make_payment',
-				//'middleware' => 'init',
-				'uses' => '\Buyer\BuyerPaymentExecuteController@MakePaymentWithNewBank'
-			]);
-
-			Route::patch('make/payment/with/saved/bank/details', [
-				//'as' => 'make_payment',
-				//'middleware' => 'init',
-				'uses' => '\Buyer\BuyerPaymentExecuteController@MakePaymentWithSavedBank'
-			]);
+				Route::patch('make/payment/with/saved/card/details', [
+					'as' => 'buyer.pay.with.saved.card',
+					//'middleware' => 'init',
+					'uses' => 'MakePaymentWithSavedCard'
+				]);
 
 
-			Route::patch('make/payment/with/saved/bank/details', [
-				//'as' => 'make_payment',
-				//'middleware' => 'init',
-				'uses' => '\Buyer\BuyerPaymentExecuteController@MakePaymentWithSavedBank'
-			]);
+				Route::patch('make/payment/with/new/bank/details', [
+					'as' => 'buyer.pay.with.new.bank',
+					//'middleware' => 'init',
+					'uses' => 'MakePaymentWithNewBank'
+				]);
 
-			/*This will be used later:*/
-			/*Route::patch('make/payment/with/new/crypto/details', [
-				//'as' => 'make_payment',
-				//'middleware' => 'init',
-				'uses' => '\Buyer\BuyerPaymentExecuteController@MakePaymentWithSavedBank'
-			]);
+				Route::patch('make/payment/with/saved/bank/details', [
+					'as' => 'buyer.pay.with.saved.bank',
+					//'middleware' => 'init',
+					'uses' => 'MakePaymentWithSavedBank'
+				]);
 
-			Route::patch('make/payment/with/saved/crypto/details', [
-				//'as' => 'make_payment',
-				//'middleware' => 'init',
-				'uses' => '\Buyer\BuyerPaymentExecuteController@MakePaymentWithSavedBank'
-			]);*/
 
+				/*This will be used later:*/
+				/*Route::patch('make/payment/with/new/crypto/wallet/details', [
+					//'as' => 'buyer.pay.with.new.crypto',
+					//'middleware' => 'init',
+					'uses' => 'MakePaymentWithNewCrypto'
+				]);
+
+				Route::patch('make/payment/with/saved/crypto/wallet/details', [
+					//'as' => 'buyer.pay.with.saved.crypto',
+					//'middleware' => 'init',
+					'uses' => 'MakePaymentWithSavedCrypto'
+				]);*/
+			});
 		});
 		
 
@@ -625,6 +635,18 @@ Route::group(['prefix' => 'v1/vendor/', 'middleware' => ['VendorConfirmLoginStat
 					'uses' => 'FetchEachBankAccountDetails'
 				]);
 
+				/*Route::post('update/crypto/wallet/details', [
+					'as' => 'vendor.update.crypto.wallet.details',
+					//'middleware' => 'init',
+					'uses' => 'UploadCryptoWalletDetails'
+				]);
+
+				Route::post('fetch/crypto/wallet/details', [
+					'as' => 'vendor.fetch.crypto.wallet.details',
+					//'middleware' => 'init',
+					'uses' => 'FetchEachCryptoWalletDetails'
+				]);*/
+
 				Route::post('update/business/details', [
 					'as' => 'vendor.update.business.details',
 					//'middleware' => 'init',
@@ -640,7 +662,42 @@ Route::group(['prefix' => 'v1/vendor/', 'middleware' => ['VendorConfirmLoginStat
 			});
 		});
 
+
+	Route::group(['prefix' => 'execute/payment', /*'middleware' => ['DeleteEmptyBillingAndShipping']*/], function()
+	{
 		
+		Route::controller(App\Http\Controllers\Buyer\VendorPaymentExecuteController::class)->group(function()
+		{
+			/*Buyer's Credit Card or other details of means of payment ....
+			note:this should be encrypted...*/
+			Route::post('make/payment/from/wallet/into/new/bank/account/details', [
+				'as' => 'vendor.receive.payment.by.new.bank.account',
+				//'middleware' => 'init',
+				'uses' => 'MakePaymentIntoNewBankAccount'
+			]);
+
+			Route::patch('make/payment/from/wallet/into/saved/bank/account/details', [
+				'as' => 'vendor.receive.payment.by.saved.bank.account',
+				//'middleware' => 'init',
+				'uses' => 'MakePaymentIntoSavedBankAccount'
+			]);
+
+			//For later:
+			/*Route::post('make/payment/from/wallet/into/new/crypto/wallet/details', [
+				'as' => 'vendor.receive.payment.by.new.crypto',
+				//'middleware' => 'init',
+				'uses' => 'MakePaymentIntoNewCrypto'
+			]);
+
+			Route::patch('make/payment/from/wallet/into/saved/crypto/wallet/details', [
+				'as' => 'vendor.receive.payment.by.saved.crypto',
+				//'middleware' => 'init',
+				'uses' => 'MakePaymentIntoSavedCrypto'
+			]);*/
+
+		});
+	});
+
 
 		Route::post('update/cleared/cart/location', [
 			'as' => '',
