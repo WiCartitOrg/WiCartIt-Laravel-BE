@@ -339,7 +339,7 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 
 		
 		
-		Route::group(['prefix' => 'execute/payment', /*'middleware' => ['DeleteEmptyBillingAndShipping']*/], function()
+		Route::group(['prefix' => 'execute/payment/', /*'middleware' => ['']*/], function()
 		{
 			
 			Route::controller(App\Http\Controllers\Buyer\BuyerPaymentExecuteController::class)->group(function()
@@ -385,48 +385,57 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 					'uses' => 'MakePaymentWithSavedCrypto'
 				]);*/
 			});
+
+			Route::get('view/all/payment/history', [
+				'as' => 'buyer.payment.history',
+				//'middleware' => 'init',
+				'uses' => 'ViewPaymentHistory'
+			]);
+
 		});
 		
 
-		Route::get('view/all/payment/history', [
-			'as' => 'payment_history',
-			//'middleware' => 'init',
-    		'uses' => '\Buyer\BuyerPaymentController@ViewPaymentHistory'
-		]);
+		Route::group(['prefix' => 'extras/', /*'middleware' => ['']*/], function()
+		{	
+			Route::controller(App\Http\Controllers\Buyer\BuyerExtrasController::class)->group(function()
+			{
+				//real time location of the goods as updated by the admin:
+				//note: it is assumed that the business runs a delivery service...
+				//note -- if this is a USA company, their is already a mailing system..
 
-		Route::post('fetch/general/statistics', [
-			'as' => 'general_statistics', 
-			//'middleware' => 'init',
-    		'uses' => '\Buyer\BuyerExtrasController@FetchGeneralStatistics'
-		]);
-		
-		//real time location of the goods as updated by the admin:
-		//note: it is assumed that the business runs a delivery service...
-		//note -- if this is a USA company, their is already a mailing system..
+				Route::post('track/all/goods/bought', [
+					'as' => 'buyer.track.products.location', 
+					//'middleware' => 'init',
+					'uses' => 'TrackGoods'
+				]);
 
-		Route::post('track/all/goods/bought', [
-			'as' => 'track_goods', 
-			//'middleware' => 'init',
-    		'uses' => '\Buyer\BuyerExtrasController@TrackGoods'
-		]);
+				Route::post('confirm/products/delivery', [
+					'as' => 'buyer.confirm.products.delivery', 
+					//'middleware' => 'init',
+					'uses' => 'ConfirmDelivery'
+				]);
 
-		Route::post('confirm/goods/delivered', [
-			//'as' => 'confirm_goods_delivered', 
-			//'middleware' => 'init',
-    		'uses' => '\Buyer\BuyerExtrasController@ConfirmDelivery'
-		]);
+				Route::post('comment/or/rate/experience', [
+					'as' => 'buyer.give.comment.rating', 
+					//'middleware' => 'init',
+					'uses' => 'CommentRate'
+				]);
 
-		Route::post('comment/or/rate/experience', [
-			'as' => 'comment_rate', 
-			//'middleware' => 'init',
-    		'uses' => '\Buyer\BuyerExtrasController@CommentRate'
-		]);
+				Route::post('view/others/comments/or/ratings', [
+					'as' => 'comment_rate_others', 
+					//'middleware' => 'init',
+					'uses' => 'ViewOtherCommentsRates'
+				]);
 
-		Route::post('view/others/comment/or/rate/experience/', [
-			'as' => 'comment_rate_others', 
-			//'middleware' => 'init',
-    		'uses' => '\Buyer\BuyerExtrasController@ViewOtherCommentsRates'
-		]);
+				Route::post('fetch/general/statistics', [
+					'as' => 'buyer.general.statistics', 
+					//'middleware' => 'init',
+					'uses' => 'FetchGeneralStatistics'
+				]);
+
+			});
+		});
+
 
 		//first check if referral program has been activated by the admin before proceeding:
 		Route::post('generate/unique/referral/link', [
