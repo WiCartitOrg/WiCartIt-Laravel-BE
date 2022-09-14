@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Artisan;
 use Closure;
 
 
-final class BuyerCreateDBonDeploy
+final class CreateDBonDeploy
 {
 
 	public function handle(Request $request, Closure $next)
@@ -22,7 +22,7 @@ final class BuyerCreateDBonDeploy
 		{
 			$status = [
 				'code' => 0,
-				'status' => 'BuyerDbInitFailed',
+				'status' => 'DbInitFailed',
 				'short_description' => $ex->getMessage()
 			];
 
