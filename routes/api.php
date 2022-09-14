@@ -403,13 +403,13 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 				//note: it is assumed that the business runs a delivery service...
 				//note -- if this is a USA company, their is already a mailing system..
 
-				Route::post('track/all/goods/bought', [
+				Route::get('track/all/goods/bought', [
 					'as' => 'buyer.track.products.location', 
 					//'middleware' => 'init',
 					'uses' => 'TrackProductsLocation'
 				]);
 
-				Route::post('confirm/products/delivery', [
+				Route::put('confirm/products/delivery', [
 					'as' => 'buyer.confirm.products.delivery', 
 					//'middleware' => 'init',
 					'uses' => 'ConfirmProductsDelivery'
@@ -421,13 +421,13 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 					'uses' => 'CommentRateService'
 				]);
 
-				Route::post('view/others/comments/or/ratings', [
+				Route::get('view/others/comments/or/ratings', [
 					'as' => 'buyer.view.others.comments.ratings', 
 					//'middleware' => 'init',
 					'uses' => 'ViewOtherCommentsRates'
 				]);
 
-				Route::post('fetch/general/statistics', [
+				Route::get('fetch/general/statistics', [
 					'as' => 'buyer.general.statistics', 
 					//'middleware' => 'init',
 					'uses' => 'FetchGeneralStatistics'
@@ -435,6 +435,15 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 
 			});
 		});
+
+	Route::group(['prefix' => 'realtime/', /*'middleware' => ['']*/], function()
+	{	
+		Route::controller(App\Http\Controllers\Buyer\BuyerChatController::class)->group(function()
+		{
+			
+		});
+
+	});
 
 
 		//first check if referral program has been activated by the admin before proceeding:

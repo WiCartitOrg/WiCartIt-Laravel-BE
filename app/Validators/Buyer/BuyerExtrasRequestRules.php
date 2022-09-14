@@ -33,18 +33,7 @@ trait BuyerExtrasRequestRules
         $rules = [
             'unique_buyer_id' => 'required | string | size:10 | exists:buyers',
             'comments' => 'nullable | string',
-            'rate' => 'nullable | numeric'
-        ];
-
-        return $rules;
-    }
-
-
-    protected function fetchGeneralStatisticsRules(): array
-    {
-        //set validation rules:
-        $rules = [
-            'unique_buyer_id' => 'required | string |  exists:buyers',
+            'rating' => 'nullable | numeric'
         ];
 
         return $rules;
@@ -54,7 +43,17 @@ trait BuyerExtrasRequestRules
     {
         //set validation rules:
         $rules = [
-            'buyer_id' => 'required | unique:buyers',
+            'buyer_id' => 'required | string | size:10 | unique:buyers',
+        ];
+
+        return $rules;
+    }
+
+    protected function fetchGeneralStatisticsRules(): array
+    {
+        //set validation rules:
+        $rules = [
+            'unique_buyer_id' => 'required | string |  exists:buyers',
         ];
 
         return $rules;

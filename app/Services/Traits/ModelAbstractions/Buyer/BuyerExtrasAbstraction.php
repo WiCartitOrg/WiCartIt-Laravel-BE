@@ -15,7 +15,7 @@ trait BuyerExtrasAbstraction
     use CartCRUD;
     use ProductLocationAndTrackingCRUD;
     
-    protected function BuyerTrackGoodsService(Request $request): array
+    protected function BuyerTrackProductsLocationService(Request $request): array
     {
         $buyer_id = $request?->unique_buyer_id;
         $cart_id = $request?->unique_cart_id;
@@ -34,7 +34,7 @@ trait BuyerExtrasAbstraction
         }
 
         $location_details = $this?->ProductLocationAndTrackingReadSpecificService($queryKeysValues);
-        return $location_details;
+        return $location_details->toArray();
         //return from location table values: 
         //present location, expected date and time of delivery
     }
@@ -48,12 +48,13 @@ trait BuyerExtrasAbstraction
         ];
 
         $newKeysValues = [
+            'cart_status' => 'Delivered',
             'is_cart_delivered' => $request?->is_products_delivered,//true in this case
         ];
 
-        $details_has_updated = $this?->LocationUpdateSpecificService($queryKeysValues, $newKeysValues);
-
-        return $details_has_updated;
+        //Product location and teacking must have been created while cart is being created:
+        $details_was_updated = $this?->ProductLocationAndTrackingUpdateSpecificService($queryKeysValues, $newKeysValues);
+        return $details_was_updated;
     }
 
 

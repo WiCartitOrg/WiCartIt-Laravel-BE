@@ -10,13 +10,16 @@ use App\Validators\Buyer\BuyerExtrasRequestRules;
 
 use App\Services\Interfaces\Buyer\BuyerExtrasInterface;
 use App\Services\Traits\ModelAbstractions\Buyer\BuyerExtrasAbstraction;
-use App\Services\Traits\ModelAbstractions\Buyer\CommentRateAbstraction;
+use App\Services\Traits\ModelAbstractions\Buyer\BuyerCommentRateAbstraction;
+
+use App\Services\Traits\Utilities\PaginateCustomCollection;
 
 final class BuyerExtrasController extends Controller implements BuyerExtrasInterface
 {
    use BuyerExtrasAbstraction;
-   use CommentRateAbstraction;
+   use BuyerCommentRateAbstraction;
    use BuyerExtrasRequestRules;
+   use PaginateCustomCollection;
    
 
    public function __construct()
@@ -139,16 +142,16 @@ final class BuyerExtrasController extends Controller implements BuyerExtrasInter
             throw new \Exception("Invalid Input Provided!");
          }
 
-         $comment_rate_has_saved = $this?->BuyerCommentRateService($request);
+         $commentRateSaved = $this?->BuyerCommentRateService($request);
 
-         if(!$comment_rate_has_saved)
+         if(!$commentRateSaved)
          {
             throw new \Exception("Wasn't able to save comments/ratings successfully!");
          }
 
          $status = [
             'code' => 1,
-            'serverStatus' => 'Comments/Ratings saved successfully!'
+            'serverStatus' => 'CreationSuccess!'
          ];
 
       }
@@ -156,15 +159,15 @@ final class BuyerExtrasController extends Controller implements BuyerExtrasInter
       {
          $status = [
             'code' => 0,
-            'serverStatus' => 'Creation Error!',
+            'serverStatus' => 'CreationFailure!',
             'short_description' => $ex?->getMessage()
          ];
-
+         return response()?->json($status, 400);
       }
-      finally
-      {
+      /*finally
+      {*/
          return response()?->json($status, 200);
-      }
+      //}
 
    }
 
@@ -176,7 +179,7 @@ final class BuyerExtrasController extends Controller implements BuyerExtrasInter
       try
       {
          //get rules from validator class:
-         $reqRules = $this?->viewOtherCommentsRates();
+         $reqRules = $this?->viewOtherCommentsRatesRules();
 
          //validate here:
          $validator = Validator::make($request?->all(), $reqRules);
@@ -192,27 +195,30 @@ final class BuyerExtrasController extends Controller implements BuyerExtrasInter
          {
             throw new \Exception("Buyers Comments and Ratings not found!");
          }
+         
+         //Arrange pagination through new collection:
+         $paginateCommentsRates = $this->Paginate(collect($detailsFound), 10);
 
          $status = [
             'code' => 1,
             'serverStatus' => 'Comment/Ratings Found!',
-            'comment_rates' => $detailsFound
+            'comment_rates' => $paginateCommentsRates->toJson(),
+            'links' => $paginateCommentsRates->links(),
          ];
-
-      }catch(\Exception $ex)
+      }
+      catch(\Exception $ex)
       {
-
          $status = [
             'code' => 0,
             'serverStatus' => 'Retrieval Error!',
             'short_description' => $ex?->getMessage()
          ];
-
-      }finally
-      {
-         return response()?->json($status, 200);
+         return response()?->json($status, 400);
       }
-
+      /*finally
+      {*/
+         return response()?->json($status, 200);
+      //}
    }
 
    public function FetchGeneralStatistics(Request $request): JsonResponse
@@ -227,7 +233,8 @@ final class BuyerExtrasController extends Controller implements BuyerExtrasInter
          //validate here:
          $validator = Validator::make($request?->all(), $reqRules);
 
-         if($validator?->fails()){
+         if($validator?->fails())
+         {
             throw new \Exception("Access Error, Not Logged In Yet!");
          }
 

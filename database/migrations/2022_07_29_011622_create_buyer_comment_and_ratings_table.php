@@ -16,8 +16,10 @@ return new class extends Migration
         Schema::create('buyer_comment_and_ratings', function (Blueprint $table) {
             $table->id();
 
-            $table->longText('comment')->nullable();
-            $table->string('rating')->nullable();
+            $table->string('unique_comment_rate_id')->unique();
+            $table->longText('comment');
+            $table->integer('rating');
+            $table->boolean('is_approved_for_view')->default(false);
 
             $table->timestamps();
         });

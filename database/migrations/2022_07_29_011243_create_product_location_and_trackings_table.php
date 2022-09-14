@@ -18,7 +18,7 @@ return new class extends Migration
 
             $table->string('unique_buyer_id')->unique();
             $table->string('unique_cart_id')->unique();
-            $table->enum('cart_status', ['Processing', 'PickUp', 'In-Transit', 'On-hold'])->default('Processing');
+            $table->enum('cart_status', ['Processing', 'PickUp', 'In-Transit', 'On-hold', 'Delivered'])->default('Processing');
             $table->string('current_country')->nullable();
             $table->string('current_state')->nullable();
             $table->string('current_city_or_town')->nullable();
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('expected_delivery_time')->nullable();
             
             //very important:
-            $table->boolean('is_product_delivered')->nullable();
+            $table->boolean('is_cart_delivered')->default(false)->nullable();
 
             $table->timestamps();
             
