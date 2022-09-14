@@ -53,6 +53,17 @@ trait BuyerWishlistEditRequestRules
 
         return $rules;
     }
+
+    protected function convertWishlistToCartRules(): array
+    {
+         //set validation rules:
+         $rules = [
+            'unique_buyer_id' => 'required | string | size:10 | exists: buyers',
+            'unique_wishlist_id' => 'required | string | size:15 | exists: wishlists',
+        ];
+
+        return $rules;
+    }
 }
 
 ?>

@@ -16,12 +16,15 @@ use App\Services\Traits\ModelAbstraction\PaymentAbstraction;
 
 final class BuyerWishlistEditController extends Controller implements BuyerWishlistEditInterface
 {
-   use BuyerWishlistEditAbstraction, BuyerWishlistEditRequestRules;
+   use BuyerWishlistEditAbstraction;
+   use BuyerWishlistEditRequestRules;
+
 
    public function __construct()
    {
       //$this->createAdminDefault();
    }
+
 
    public function AddProductsToWishlist(Request $request): JsonResponse
    {
@@ -163,5 +166,51 @@ final class BuyerWishlistEditController extends Controller implements BuyerWishl
       //}
    }
    
-   
+
+   public function ConvertWishlistToCart(Request $request): JsonResponse
+   {
+      $status = array();
+
+      try
+      {
+         //get rules from validator class:
+         $reqRules = $this->convertWishlistToCartRules();
+
+         //validate here:
+         $validator = Validator::make($request->all(), $reqRules);
+
+         if($validator->fails())
+         {
+            throw new \Exception("Invalid Input Provided!");
+         }
+
+         $wishlist_was_converted = $this->BuyerConvertWishlistToCartService($request);
+
+         if(!$wishlist_was_converted)
+         {
+            throw new \Exception("Wishlist convertion to Cart failure!");
+         }
+
+         $status = [
+            'code' => 1,
+            'serverStatus' => 'WishlistConversionSuccess!'
+         ];
+
+      }
+      catch(\Exception $ex)
+      {
+         $status = [
+            'code' => 0,
+            'serverStatus' => 'WishlistConversionFailure!',
+            'short_description' => $ex->getMessage()
+         ];
+
+         return response()->json($status, 400);
+      }
+      /*finally
+      {*/
+         return response()->json($status, 200);
+      //}
+   }
+
 }
