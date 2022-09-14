@@ -5,7 +5,7 @@ namespace App\Services\Traits\ModelCRUDs\General;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\LazyCollection;
 
-use App\Models\ProductLocationAndTracking;
+use App\Models\General\ProductLocationAndTracking;
 
 use Illuminate\Http\Request;
 

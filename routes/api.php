@@ -386,11 +386,11 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 				]);*/
 			});
 
-			Route::get('view/all/payment/history', [
+			/*Route::get('view/all/payment/history', [
 				'as' => 'buyer.payment.history',
 				//'middleware' => 'init',
 				'uses' => 'ViewPaymentHistory'
-			]);
+			]);*/
 
 		});
 		
@@ -406,23 +406,23 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 				Route::post('track/all/goods/bought', [
 					'as' => 'buyer.track.products.location', 
 					//'middleware' => 'init',
-					'uses' => 'TrackGoods'
+					'uses' => 'TrackProductsLocation'
 				]);
 
 				Route::post('confirm/products/delivery', [
 					'as' => 'buyer.confirm.products.delivery', 
 					//'middleware' => 'init',
-					'uses' => 'ConfirmDelivery'
+					'uses' => 'ConfirmProductsDelivery'
 				]);
 
-				Route::post('comment/or/rate/experience', [
+				Route::post('comment/or/rate/service', [
 					'as' => 'buyer.give.comment.rating', 
 					//'middleware' => 'init',
-					'uses' => 'CommentRate'
+					'uses' => 'CommentRateService'
 				]);
 
 				Route::post('view/others/comments/or/ratings', [
-					'as' => 'comment_rate_others', 
+					'as' => 'buyer.view.others.comments.ratings', 
 					//'middleware' => 'init',
 					'uses' => 'ViewOtherCommentsRates'
 				]);

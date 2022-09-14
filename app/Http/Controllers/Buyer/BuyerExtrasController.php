@@ -6,52 +6,56 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
-use App\Http\Controllers\Validators\BuyerExtrasRequestRules;
+use App\Validators\Buyer\BuyerExtrasRequestRules;
 
-use App\Services\Interfaces\BuyerExtrasInterface;
-use App\Services\Traits\ModelAbstraction\BuyerExtrasAbstraction;
-use App\Services\Traits\ModelAbstraction\CommentRateAbstraction;
+use App\Services\Interfaces\Buyer\BuyerExtrasInterface;
+use App\Services\Traits\ModelAbstractions\Buyer\BuyerExtrasAbstraction;
+use App\Services\Traits\ModelAbstractions\Buyer\CommentRateAbstraction;
 
-final class BuyerExtrasController extends Controller //implements BuyerExtrasInterface
+final class BuyerExtrasController extends Controller implements BuyerExtrasInterface
 {
-   use BuyerExtrasRequestRules;
    use BuyerExtrasAbstraction;
    use CommentRateAbstraction;
+   use BuyerExtrasRequestRules;
    
 
    public function __construct()
    {
-        //$this->createAdminDefault();
+        //$this?->createAdminDefault();
    }
 
-   public function TrackGoods(Request $request): JsonResponse
+   //Track cleared cart product content(s)
+   public function TrackProductsLocation(Request $request): JsonResponse
    {
       $status = array();
 
       try
       {
          //get rules from validator class:
-         $reqRules = $this->trackGoodsRules();
+         $reqRules = $this?->trackProductsLocationRules();
 
          //validate here:
-         $validator = Validator::make($request->all(), $reqRules);
+         $validator = Validator::make($request?->all(), $reqRules);
 
-         if($validator->fails()){
-            throw new \Exception("Invalid Input provided!");
+         if($validator?->fails())
+         {
+            throw new \Exception("Access Error! Not Logged In Yet!");
          }
 
-         //this should return in chunks or paginate:
-         $locationDetails = $this->BuyerTrackGoodsService($request);
+         $locationDetails = $this?->BuyerTrackProductsLocationService($request);
          if( empty($locationDetails) ) 
          {
-            throw new \Exception("Tracking Details Not Found!");
+            throw new \Exception("Product Tracking Details Not Found!");
+         }
+         if(!$locationDetails/*false*/)
+         {
+            throw new \Exception("Only cleared products can be tracked!");
          }
 
          $status = [
             'code' => 1,
-            'serverStatus' => 'Tracking Details Found!',
+            'serverStatus' => 'ProductLocationTrackingSuccess!',
             'trackDetails' => $locationDetails,
-
          ];
 
       }
@@ -59,14 +63,154 @@ final class BuyerExtrasController extends Controller //implements BuyerExtrasInt
       {
          $status = [
             'code' => 0,
-            'serverStatus' => 'Track Error!',
-            'short_description' => $ex->getMessage(),
+            'serverStatus' => 'ProductLocationTrackingFailure!',
+            'short_description' => $ex?->getMessage(),
+         ];
+         return response()?->json($status, 400);
+      }
+      /*finally
+      {*/
+         return response()?->json($status, 200);
+      //}
+
+   }
+
+
+   public function ConfirmProductsDelivery(Request $request): JsonResponse
+   {
+      $status = array();
+
+      try
+      {
+         //get rules from validator class:
+         $reqRules = $this?->confirmProductsDeliveryRules();
+
+         //validate here:
+         $validator = Validator::make($request?->all(), $reqRules);
+
+         if($validator?->fails())
+         {
+            throw new \Exception("Access Error! Not Logged In Yet!");
+         }
+         
+         $delivery_confirmed = $this?->BuyerConfirmDeliveryService($request);
+         if(!$delivery_confirmed)
+         {
+            throw new \Exception("Delivery Not Confirmed Yet!");
+         }
+
+         $status = [
+            'code' => 1,
+            'serverStatus' => 'DeliveryConfirmed!',
+         ];
+
+      }
+      catch(\Exception $ex)
+      {
+         $status = [
+            'code' => 0,
+            'serverStatus' => 'DeliveryNotConfirmed!',
+            'short_description' => $ex?->getMessage()
+         ];
+         return response()?->json($status, 400);
+      }
+      /*finally
+      {*/
+         return response()?->json($status, 200);
+      //}
+
+   }
+
+
+   public function CommentRateService(Request $request): JsonResponse
+   {
+      $status = array();
+
+      try
+      {
+         //get rules from validator class:
+         $reqRules = $this?->commentRateServiceRules();
+
+         //validate here:
+         $validator = Validator::make($request?->all(), $reqRules);
+
+         if($validator?->fails())
+         {
+            throw new \Exception("Invalid Input Provided!");
+         }
+
+         $comment_rate_has_saved = $this?->BuyerCommentRateService($request);
+
+         if(!$comment_rate_has_saved)
+         {
+            throw new \Exception("Wasn't able to save comments/ratings successfully!");
+         }
+
+         $status = [
+            'code' => 1,
+            'serverStatus' => 'Comments/Ratings saved successfully!'
+         ];
+
+      }
+      catch(\Exception $ex)
+      {
+         $status = [
+            'code' => 0,
+            'serverStatus' => 'Creation Error!',
+            'short_description' => $ex?->getMessage()
          ];
 
       }
       finally
       {
-         return response()->json($status, 200);
+         return response()?->json($status, 200);
+      }
+
+   }
+
+
+   public function ViewOtherCommentsRates(Request $request): JsonResponse
+   {
+      $status = array();
+
+      try
+      {
+         //get rules from validator class:
+         $reqRules = $this?->viewOtherCommentsRates();
+
+         //validate here:
+         $validator = Validator::make($request?->all(), $reqRules);
+
+         if($validator?->fails())
+         {
+            throw new \Exception("Access Error, Not logged in yet!");
+         }
+
+         //this should return in chunks or paginate:
+         $detailsFound = $this?->BuyerViewOtherBuyersCommentRateService($request);
+         if(!$detailsFound)
+         {
+            throw new \Exception("Buyers Comments and Ratings not found!");
+         }
+
+         $status = [
+            'code' => 1,
+            'serverStatus' => 'Comment/Ratings Found!',
+            'comment_rates' => $detailsFound
+         ];
+
+      }catch(\Exception $ex)
+      {
+
+         $status = [
+            'code' => 0,
+            'serverStatus' => 'Retrieval Error!',
+            'short_description' => $ex?->getMessage()
+         ];
+
+      }finally
+      {
+         return response()?->json($status, 200);
       }
 
    }
@@ -78,17 +222,17 @@ final class BuyerExtrasController extends Controller //implements BuyerExtrasInt
       try
       {
          //get rules from validator class:
-         $reqRules = $this->fetchGeneralStatisticsRules();
+         $reqRules = $this?->fetchGeneralStatisticsRules();
 
          //validate here:
-         $validator = Validator::make($request->all(), $reqRules);
+         $validator = Validator::make($request?->all(), $reqRules);
 
-         if($validator->fails()){
+         if($validator?->fails()){
             throw new \Exception("Access Error, Not Logged In Yet!");
          }
 
          //this should return in chunks or paginate:
-         $generalStatisticsDetails = $this->BuyerFetchGeneralStatisticsService($request);
+         $generalStatisticsDetails = $this?->BuyerFetchGeneralStatisticsService($request);
          if( empty($generalStatisticsDetails) ) 
          {
             throw new \Exception("Dashboard statistics details Not Found!");
@@ -107,158 +251,15 @@ final class BuyerExtrasController extends Controller //implements BuyerExtrasInt
          $status = [
             'code' => 0,
             'serverStatus' => 'DetailsNotFound!',
-            'short_description' => $ex->getMessage(),
+            'short_description' => $ex?->getMessage(),
          ];
 
       }
       /*finally
       {*/
-         return response()->json($status, 200);
+         return response()?->json($status, 200);
       //}
 
    }
-
-   //first display the summary of all pending(not paid yet) or cleared cart(paid)
-   public function ConfirmDelivery(Request $request): JsonResponse
-   {
-      $status = array();
-
-      try
-      {
-         //get rules from validator class:
-         $reqRules = $this->confirmDeliveryRules();
-
-         //validate here:
-         $validator = Validator::make($request->all(), $reqRules);
-
-         if($validator->fails())
-         {
-            throw new \Exception("Access Error, Not logged in yet!");
-         }
-         
-         //this should return in chunks or paginate:
-         $is_delivery_confirmed = $this->BuyerConfirmDeliveryService($request);
-         if(!$is_delivery_confirmed)
-         {
-            throw new \Exception("Delivery Not Confirmed Yet!");
-         }
-
-         $status = [
-            'code' => 1,
-            'serverStatus' => 'Delivery Confirmed!',
-         ];
-
-      }
-      catch(\Exception $ex)
-      {
-
-         $status = [
-            'code' => 0,
-            'serverStatus' => 'Search Error!',
-            'short_description' => $ex->getMessage()
-         ];
-
-      }
-      finally
-      {
-         return response()->json($status, 200);
-      }
-
-   }
-
-
-   public function CommentRate(Request $request): JsonResponse
-   {
-      $status = array();
-
-      try
-      {
-         //get rules from validator class:
-         $reqRules = $this->commentRateRules();
-
-         //validate here:
-         $validator = Validator::make($request->all(), $reqRules);
-
-         if($validator->fails())
-         {
-            throw new \Exception("Invalid Input Provided!");
-         }
-
-         $comment_rate_has_saved = $this->BuyerCommentRateService($request);
-
-         if(!$comment_rate_has_saved)
-         {
-            throw new \Exception("Wasn't able to save comments/ratings successfully!");
-         }
-
-         $status = [
-            'code' => 1,
-            'serverStatus' => 'Comments/Ratings saved successfully!'
-         ];
-
-      }
-      catch(\Exception $ex)
-      {
-         $status = [
-            'code' => 0,
-            'serverStatus' => 'Creation Error!',
-            'short_description' => $ex->getMessage()
-         ];
-
-      }
-      finally
-      {
-         return response()->json($status, 200);
-      }
-
-   }
-
-
-   public function ViewOtherCommentsRates(Request $request): JsonResponse
-   {
-      $status = array();
-
-      try
-      {
-         //get rules from validator class:
-         $reqRules = $this->viewOtherCommentsRates();
-
-         //validate here:
-         $validator = Validator::make($request->all(), $reqRules);
-
-         if($validator->fails())
-         {
-            throw new \Exception("Access Error, Not logged in yet!");
-         }
-
-         //this should return in chunks or paginate:
-         $detailsFound = $this->BuyerViewOtherBuyersCommentRateService($request);
-         if(!$detailsFound)
-         {
-            throw new \Exception("Buyers Comments and Ratings not found!");
-         }
-
-         $status = [
-            'code' => 1,
-            'serverStatus' => 'Comment/Ratings Found!',
-            'comment_rates' => $detailsFound
-         ];
-
-      }catch(\Exception $ex)
-      {
-
-         $status = [
-            'code' => 0,
-            'serverStatus' => 'Retrieval Error!',
-            'short_description' => $ex->getMessage()
-         ];
-
-      }finally
-      {
-         return response()->json($status, 200);
-      }
-
-   }
-
 
 }
