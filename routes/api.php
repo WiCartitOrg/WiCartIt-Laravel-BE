@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 });*/
 
 //Buyer Auth:
-Route::prefix('v1/buyer')->group(function() 
+Route::prefix('v1/buyer/')->group(function() 
 {
 
 	Route::middleware('BuyerCleanNullRecords')->group(function()

@@ -6,51 +6,158 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
-use App\Http\Controllers\Validators\BuyerPaymentExecuteRequestRules;
+use App\Validators\Buyer\BuyerPaymentExecuteRequestRules;
 
-//use App\Services\Interfaces\BuyerCartInterface;
-use App\Services\Traits\ModelAbstraction\BuyerPaymentExecuteAbstraction;
+use App\Services\Interfaces\Buyer\BuyerPaymentExecuteInterface;
+use App\Services\Traits\ModelAbstractions\Buyer\BuyerPaymentExecuteAbstraction;
 
-final class BuyerPaymentExecuteController extends Controller //implements BuyerCartInterface, PaymentInterface
+final class BuyerPaymentExecuteController extends Controller implements BuyerPaymentExecuteInterface
 {
    use BuyerPaymentExecuteAbstraction;
    use BuyerPaymentExecuteRequestRules;
 
    public function __construct()
    {
-        //$this->createBuyerDefault();
+        //$this?->createBuyerDefault();
    }
 
    //use guzzlehttp to connect to external API to make payment:
-
-   //first display the summary of all pending(not paid yet) or cleared cart(paid)
-   public function MakePayment(Request $request): JsonResponse
+   public function MakePaymentWithNewCard(Request $request): JsonResponse
    {
       $status = array();
 
       try
       {
          //get rules from validator class:
-         $reqRules = $this->fetchMakePaymentRules();
+         $reqRules = $this?->makePaymentWithNewCardRules();
 
          //validate here:
-         $validator = Validator::make($request->all(), $reqRules);
+         $validator = Validator::make($request?->all(), $reqRules);
 
-         if($validator->fails())
+         if($validator?->fails())
+         {
+            throw new \Exception("Invalid Input Provided!");
+         }
+         
+         //connect to external API here:
+         $paymentWasMadeWithDetails = $this?->BuyerMakePaymentWithNewCardService($request);
+
+         if(!$paymentWasMadeWithDetails)
+         {
+            throw new \Exception("Payment transaction failure!");
+         }
+
+         if( empty($paymentWasMadeWithDetails) )
+         {
+            throw new \Exception("Payment transaction failure!");
+         }
+
+         if(!$paymentWasMadeWithDetails['payment_was_made'])
+         {
+            throw new \Exception("Payment transaction failure!");
+         }
+
+         $status = [
+            'code' => 1,
+            'serverStatus' => 'PaymentTransactionSuccess!',
+            'transactionDetails' => $paymentWasMadeWithDetails,
+         ];
+      }
+      catch(\Exception $ex)
+      {
+         $status = [
+            'code' => 0,
+            'serverStatus' => 'PaymentTransactionFailure!',
+            'short_description' => $ex?->getMessage()
+         ];
+         return response()?->json($status, 400);
+      }
+      /*finally
+      {*/
+         return response()?->json($status, 200);
+      //}
+   }
+
+
+   public function MakePaymentWithSavedCard(Request $request): JsonResponse
+   {
+      $status = array();
+
+      try
+      {
+         //get rules from validator class:
+         $reqRules = $this?->makePaymentWithSavedCardRules();
+
+         //validate here:
+         $validator = Validator::make($request?->all(), $reqRules);
+
+         if($validator?->fails())
          {
             throw new \Exception("Access Error, Not logged in yet!");
          }
          
          //this should return in chunks or paginate:
-         $paymentMadeDetails = $this->BuyerMakePaymentService($request);
+         $paymentMadeDetails = $this?->BuyerMakePaymentWithSavedCardService($request);
          if( empty($paymentMadeDetails) )
          {
-            throw new \Exception("Error! Payment transaction unsuccessful!");
+            throw new \Exception("Payment transaction unsuccessful!");
+         }
+
+         if(!$paymentMadeDetails['payment_was_made'])
+         {
+            throw new \Exception("Payment transaction unsuccessful!");
+         }
+
+         $status = [
+            'code' => 1,
+            'serverStatus' => 'PaymentTransactionSuccess!',
+            'transDetails' => $paymentMadeDetails
+         ];
+
+      }
+      catch(\Exception $ex)
+      {
+         $status = [
+            'code' => 0,
+            'serverStatus' => 'PaymentTransactionFailure!',
+            'short_description' => $ex?->getMessage()
+         ];
+         return response()?->json($status, 400);
+      }
+      /*finally
+      {*/
+         return response()?->json($status, 200);
+      //}
+   }
+   
+
+   public function MakePaymentWithNewBank(Request $request): JsonResponse
+   {
+      $status = array();
+
+      try
+      {
+         //get rules from validator class:
+         $reqRules = $this?->makePaymentWithNewBankRules();
+
+         //validate here:
+         $validator = Validator::make($request?->all(), $reqRules);
+
+         if($validator?->fails())
+         {
+            throw new \Exception("Access Failure, Not logged in yet!");
+         }
+         
+         //this should return in chunks or paginate:
+         $paymentMadeDetails = $this?->BuyerMakePaymentWithNewBankService($request);
+         if( empty($paymentMadeDetails) )
+         {
+            throw new \Exception("Failure! Payment transaction unsuccessful!");
          }
 
          if(!$paymentMadeDetails['is_payment_made'])
          {
-            throw new \Exception("Error! Payment transaction unsuccessful!");
+            throw new \Exception("Failure! Payment transaction unsuccessful!");
          }
 
          $status = [
@@ -65,14 +172,73 @@ final class BuyerPaymentExecuteController extends Controller //implements BuyerC
 
          $status = [
             'code' => 0,
-            'serverStatus' => 'TransactionError!',
-            'short_description' => $ex->getMessage()
+            'serverStatus' => 'TransactionFailure!',
+            'short_description' => $ex?->getMessage()
          ];
 
       }
       /*finally
       {*/
-         return response()->json($status, 200);
+         return response()?->json($status, 200);
       //}
    }
+
+
+   public function MakePaymentWithSavedBank(Request $request): JsonResponse
+   {
+      $status = array();
+
+      try
+      {
+         //get rules from validator class:
+         $reqRules = $this?->makePaymentWithSavedBankRules();
+
+         //validate here:
+         $validator = Validator::make($request?->all(), $reqRules);
+
+         if($validator?->fails())
+         {
+            throw new \Exception("Invalid Input Provided!");
+         }
+         
+         //this should return in chunks or paginate:
+         $paymentWasMadeWithDetails = $this?->BuyerMakePaymentWithSavedBankService($request);
+
+         if(!$paymentWasMadeWithDetails)
+         {
+            throw new \Exception("Failure! Payment transaction unsuccessful!");
+         }
+
+         if( empty($paymentWasMadeWithDetails) )
+         {
+            throw new \Exception("Failure! Payment transaction unsuccessful!");
+         }
+
+         if(!$paymentWasMadeWithDetails['payment_was_made'])
+         {
+            throw new \Exception("Failure! Payment transaction unsuccessful!");
+         }
+
+         $status = [
+            'code' => 1,
+            'serverStatus' => 'TransactionSuccess!',
+            'transactionDetails' => $paymentWasMadeWithDetails,
+         ];
+
+      }
+      catch(\Exception $ex)
+      {
+         $status = [
+            'code' => 0,
+            'serverStatus' => 'TransactionFailure!',
+            'short_description' => $ex?->getMessage()
+         ];
+         return response()?->json($status, 400);
+      }
+      /*finally
+      {*/
+         return response()?->json($status, 200);
+      //}
+   }
+
 }
