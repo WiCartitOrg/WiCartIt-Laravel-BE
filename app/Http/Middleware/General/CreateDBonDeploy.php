@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\Buyer;
+namespace App\Http\Middleware\General;
 
 use Illuminate\Http\Request;
 //use Illuminate\Database\Eloquent\Model;
