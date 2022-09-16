@@ -69,7 +69,7 @@ trait VendorAccessAbstraction
 			$queryKeysValues = ['vendor_email' => $vendor_email];
 		}
 
-        $detailsFound = $this->VendorReadSpecificService($queryKeysValues);
+        $detailsFound = $this?->VendorReadSpecificService($queryKeysValues);
         return $detailsFound;
 			
     }
@@ -101,7 +101,7 @@ trait VendorAccessAbstraction
 		$newKeysValues = ['vendor_password' => $hashedPass];
 
 		//attempt at email, then password:
-        $is_pass_updated = $this->VendorUpdateSpecificService($queryKeysValues, $newKeysValues);
+        $is_pass_updated = $this?->VendorUpdateSpecificService($queryKeysValues, $newKeysValues);
 
         return $is_pass_updated;
 	}

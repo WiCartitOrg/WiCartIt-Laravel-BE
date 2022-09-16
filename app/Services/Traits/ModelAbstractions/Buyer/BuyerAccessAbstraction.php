@@ -69,7 +69,7 @@ trait BuyerAccessAbstraction
 			$queryKeysValues = ['buyer_email' => $buyer_email];
 		}
 
-        $detailsFound = $this->BuyerReadSpecificService($queryKeysValues);
+        $detailsFound = $this?->BuyerReadSpecificService($queryKeysValues);
         return $detailsFound;
 			
     }
@@ -101,7 +101,7 @@ trait BuyerAccessAbstraction
 		$newKeysValues = ['buyer_password' => $hashedPass];
 
 		//attempt at email, then password:
-        $is_pass_updated = $this->BuyerUpdateSpecificService($queryKeysValues, $newKeysValues);
+        $is_pass_updated = $this?->BuyerUpdateSpecificService($queryKeysValues, $newKeysValues);
 
         return $is_pass_updated;
 	}

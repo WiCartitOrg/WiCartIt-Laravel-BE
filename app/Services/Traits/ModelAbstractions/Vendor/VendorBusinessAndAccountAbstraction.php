@@ -95,26 +95,26 @@ trait VendorBusinessAndAccountAbstraction
 
 		//first get if Business Details table is not empty:
 		$VendorBizDetails = $this?->VendorGenBizReadAllService();
-		if( $VendorBizDetails->count() !== 0)
+		if( $VendorBizDetails?->count() !== 0)
 		{
 			//now first get the Vendor token id:
 			$token_id = $request?->unique_vendor_id;
 
 			//then update thus:
 			$queryKeysValues = ['unique_vendor_id' => $token_id];
-			$newKeysValues = $request->except('token_id');
+			$newKeysValues = $request?->except('token_id');
 
 			//call the update function:
-			$is_details_saved = $this->VendorGenBizUpdateSpecificService($queryKeysValues, $newKeysValues);
+			$is_details_saved = $this?->VendorGenBizUpdateSpecificService($queryKeysValues, $newKeysValues);
 
 			$details_saved_status = $is_details_saved;
 		}
 		else
 		{
 			//else:
-			$params_to_be_saved = $request->all();
+			$params_to_be_saved = $request?->all();
 			//save all using mass assignment:
-			$is_details_saved = $this->VendorGenBizCreateAllService($params_to_be_saved);
+			$is_details_saved = $this?->VendorGenBizCreateAllService($params_to_be_saved);
 
 			$details_saved_status = $is_details_saved;
 		}
@@ -125,8 +125,8 @@ trait VendorBusinessAndAccountAbstraction
 
 	protected function VendorFetchBusinessDetailsService(Request $request)
 	{
-		$queryKeysValues = ['unique_vendor_id' => $request->unique_vendor_id];
-		$bizDetails = $this->VendorGenBizReadSpecificService($queryKeysValues);
+		$queryKeysValues = ['unique_vendor_id' => $request?->unique_vendor_id];
+		$bizDetails = $this?->VendorGenBizReadSpecificService($queryKeysValues);
 
 		return $bizDetails;
 	}

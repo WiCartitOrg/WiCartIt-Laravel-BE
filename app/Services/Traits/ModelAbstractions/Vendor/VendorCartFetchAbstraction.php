@@ -34,7 +34,7 @@ trait VendorCartFetchAbstraction
 			'unique_product_id' => $metadata_info['unique_product_id'],
 			'total_product_price' => $metadata_info['total_product_price'],
 		];
-		$detail_is_saved = $this->CartMetadataCreateAllService($toPersistKeysValues);
+		$detail_is_saved = $this?->CartMetadataCreateAllService($toPersistKeysValues);
 		return $detail_is_saved;
 	}
 
@@ -45,18 +45,18 @@ trait VendorCartFetchAbstraction
 		$related_carts_products_summary = array();
 
 		//start with the vendor object:
-		$unique_vendor_id = $request->unique_vendor_id; 
+		$unique_vendor_id = $request?->unique_vendor_id; 
         $queryKeysValues1 = [
             'unique_vendor_id' => $unique_vendor_id,
         ];
 		
         //get related products:
-        $relatedVendorProductObject = $this?->VendorReadSpecificService($queryKeysValues1)->products;
+        $relatedVendorProductObject = $this?->VendorReadSpecificService($queryKeysValues1)?->products;
         //get only products ids:
-        $relatedVendorProductsIds = $relatedVendorProductObject->pluck('unique_product_id');
+        $relatedVendorProductsIds = $relatedVendorProductObject?->pluck('unique_product_id');
         
         //get cart information:
-		$payment_status = $request->cart_payment_status;
+		$payment_status = $request?->cart_payment_status;
 		$queryKeysValues2 = [
 			//'unique_vendor_id' => $vendor_id,
 			'cart_payment_status' => $payment_status,
@@ -64,9 +64,9 @@ trait VendorCartFetchAbstraction
 
 		$relatedCartProductsCollections = $this?->CartReadAllLazySpecificService($queryKeysValues2);
 		//convert lazy collections to array:
-		$relatedCartProductsArray = $relatedCartProductsCollections->toArray();
+		$relatedCartProductsArray = $relatedCartProductsCollections?->toArray();
 
-		$relatedCartProductsIds = $relatedCartProductsCollections->pluck('cart_attached_products_ids_quantities');
+		$relatedCartProductsIds = $relatedCartProductsCollections?->pluck('cart_attached_products_ids_quantities');
 		//convert lazy collections to array: this should return ['product_id' => quantities]
 		$relatedCartProductsIdsArray = $relatedCartProductsIds?->toArray();
 
@@ -90,18 +90,18 @@ trait VendorCartFetchAbstraction
 					$productObject = $this?->ProductReadSpecificService($queryKeysValues3);
 
 					$each_product_quantities = (int) $relatedCartProductsIdsArray[$eachProductId];
-					$each_product_price = $productObject->product_price;
-					$each_product_shipping_cost = $productObject->product_shipping_cost;
+					$each_product_price = $productObject?->product_price;
+					$each_product_shipping_cost = $productObject?->product_shipping_cost;
 					
 					$total_product_price = $each_product_price * $each_product_quantities;
 					$total_product_shipping_cost = $each_product_shipping_cost * $each_product_quantities;
 					$total_product_cost = $total_product_price + $total_product_shipping_cost;
 
 					//get product image:
-					$product_image = base64_encode(Storage::get($productObject->main_image_1));
+					$product_image = base64_encode(Storage::get($productObject?->main_image_1));
 
 					//get related buyer_id:
-					$unique_buyer_id = $eachrelatedCartProductObject->unique_buyer_id;
+					$unique_buyer_id = $eachrelatedCartProductObject?->unique_buyer_id;
 					
 					//create a new array
 					$each_related_cart_product_details = [
@@ -119,12 +119,12 @@ trait VendorCartFetchAbstraction
 
 					//To show that $unique_buyer_id has bought products worth $total_product_price from $unique_vendor_id:
 					//This will make future promos, discount and referrals possible...
-					if($$eachrelatedCartProductObject->cart_payment_status === 'cleared')
+					if($$eachrelatedCartProductObject?->cart_payment_status === 'cleared')
 					{
-						$this->PersistCartMetadata([
+						$this?->PersistCartMetadata([
 							'unique_buyer_id'=>$unique_buyer_id, 
 							'unique_vendor_id'=>$unique_vendor_id, 
-							'unique_cart_id' => $eachrelatedCartProductObject->unique_cart_id,
+							'unique_cart_id' => $eachrelatedCartProductObject?->unique_cart_id,
 							'unique_product_id' => $eachProductId,
 							'product_cost'=> $total_product_price,
 						]);
@@ -146,15 +146,15 @@ trait VendorCartFetchAbstraction
 		$eachVendorCustomerBuyerDetail = array();
 		$eachVendorCustomerBuyerDetail['products_ids_and_quantities'] = [];
 
-		$unique_vendor_id = $request->unique_vendor_id;
+		$unique_vendor_id = $request?->unique_vendor_id;
 		//set query:
 		$queryKeysValues1 = [
 			'unique_vendor_id' => $unique_vendor_id,
 		];
 
-		$metaDataCollection1 = $this->CartMetadataReadAllLazySpecificService($queryKeysValues1);
+		$metaDataCollection1 = $this?->CartMetadataReadAllLazySpecificService($queryKeysValues1);
 		//get all ids:
-		$unique_buyers_ids = $metaDataCollection1->pluck('unique_buyer_id')->toArray();
+		$unique_buyers_ids = $metaDataCollection1?->pluck('unique_buyer_id')?->toArray();
 
 		
 		//loop through each id to query and get the amount bought so far:
@@ -164,12 +164,12 @@ trait VendorCartFetchAbstraction
 				'unique_vendor_id' => $unique_vendor_id,
 				'unique_buyer_id' => $unique_buyer_id,
 			];
-			$metaDataCollection2 = $this->CartMetadataReadAllLazySpecificService($queryKeysValues2);
+			$metaDataCollection2 = $this?->CartMetadataReadAllLazySpecificService($queryKeysValues2);
 			//total sum:
-			$total_product_amount_bought = $metaDataCollection2->pluck('product_cost')->sum();
+			$total_product_amount_bought = $metaDataCollection2?->pluck('product_cost')?->sum();
 
 			//products and product count:
-			$all_related_products_ids = $metaDataCollection2->pluck('unique_product_id')->toArray();
+			$all_related_products_ids = $metaDataCollection2?->pluck('unique_product_id')?->toArray();
 			//sort by only unique elements:
 			$unique_related_products_ids = array_unique($all_related_products_ids);
 			//returns the number of occurrence:

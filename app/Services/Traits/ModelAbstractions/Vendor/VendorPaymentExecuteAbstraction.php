@@ -23,13 +23,13 @@ trait VendorPaymentExecuteAbstraction
 	{
 		//init:
 		//first get the specific card details of this buyer:
-		$queryKeysValues = ['unique_buyer_id' => $request->unique_buyer_id];
+		$queryKeysValues = ['unique_buyer_id' => $request?->unique_buyer_id];
 
-		$buyerDetails = $this->VendorReadSpecificService($queryKeysValues);
+		$buyerDetails = $this?->VendorReadSpecificService($queryKeysValues);
 
 		$userCardDetails = [];
 		
-		$userCardDetails['customer'] = $request->unique_buyer_id;
+		$userCardDetails['customer'] = $request?->unique_buyer_id;
 		//first call all card details and put them in an array:
 		$userCardDetails['buyer_card_type'] = Crypt::decryptString($buyerDetails?->buyer_bank_card_type);
 		$userCardDetails['buyer_card_number'] = Crypt::decryptString($buyerDetails?->buyer_bank_card_number);
@@ -40,11 +40,11 @@ trait VendorPaymentExecuteAbstraction
 		$userCardDetails['buyer_email'] = $buyerDetails?->buyer_email;
 
 		$cartQueryKeysValues = [
-			'unique_buyer_id' => $request->unique_buyer_id,
-			'unique_cart_id' => $request->unique_cart_id
+			'unique_buyer_id' => $request?->unique_buyer_id,
+			'unique_cart_id' => $request?->unique_cart_id
 		];
 
-		$cartModel = $this->CartReadSpecificService($cartQueryKeysValues);
+		$cartModel = $this?->CartReadSpecificService($cartQueryKeysValues);
 		$userCardDetails['cart_purchase_currency'] = $cartModel?->purchase_currency;
 
 		$cart_purchase_price = $cartModel?->purchase_price;
@@ -52,29 +52,29 @@ trait VendorPaymentExecuteAbstraction
 
 		$userCardDetails['charge_price'] = $cart_purchase_price - $buyer_total_referral_bonus;
 
-		$userCardDetails['pending_cart_id'] = $request->unique_cart_id;
+		$userCardDetails['pending_cart_id'] = $request?->unique_cart_id;
 
 		
 		//call our payment hooks that will interact with the API:
-		$is_payment_made = $this->CallStripeService($userCardDetails);
+		$is_payment_made = $this?->CallStripeService($userCardDetails);
 		if($is_payment_made)
 		{
 			//change the cart state from pending to cleared:
 			$cartQueryKeysValues  = [
-				'unique_buyer_id' => $request->unique_buyer_id, 
-				'unique_cart_id' => $request->unique_cart_id
+				'unique_buyer_id' => $request?->unique_buyer_id, 
+				'unique_cart_id' => $request?->unique_cart_id
 			];
 			$newKeysValues = ['payment_status' => 'cleared'];
-			$this->CartUpdateSpecificService($cartQueryKeysValues , $newKeysValues);
+			$this?->CartUpdateSpecificService($cartQueryKeysValues , $newKeysValues);
 
 			//make the referral bonus equal to null because it has been used:
 			$newKeysValues = ['buyer_total_referral_bonus' => null];
-			$this->BuyerUpdateSpecificService($queryKeysValues, $newKeysValues);
+			$this?->BuyerUpdateSpecificService($queryKeysValues, $newKeysValues);
 		}
 		
 		return [
 			'is_payment_made' => $is_payment_made,
-			'unique_cart_id' => $request->unique_cart_id,
+			'unique_cart_id' => $request?->unique_cart_id,
 			'purchase_currency' => $userCardDetails['cart_purchase_currency'],
 			'purchase_price' => $cart_purchase_price,
 			'discount' => $buyer_total_referral_bonus

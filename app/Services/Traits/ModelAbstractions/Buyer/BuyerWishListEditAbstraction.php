@@ -111,16 +111,16 @@ trait BuyerWishlistEditAbstraction
 		//then map values into the cart queries:
 		$cartcreateNewKeysValues = [
 			'unique_buyer_id' => $buyer_id,
-			'unique_cart_id' => $this->genUniqueNumericId(),
-			'cart_products_count' => $wishlistObject->wishlist_products_count,
-			'cart_payment_currency' => $wishlistObject->cart_payment_currency,
-			'cart_products_cost' => $wishlistObject->cart_products_cost,
-			'cart_shipping_cost' => $wishlistObject->cart_shipping_cost,
-			'cart_total_cost' => $wishlistObject->cart_total_cost,
+			'unique_cart_id' => $this?->genUniqueNumericId(),
+			'cart_products_count' => $wishlistObject?->wishlist_products_count,
+			'cart_payment_currency' => $wishlistObject?->cart_payment_currency,
+			'cart_products_cost' => $wishlistObject?->cart_products_cost,
+			'cart_shipping_cost' => $wishlistObject?->cart_shipping_cost,
+			'cart_total_cost' => $wishlistObject?->cart_total_cost,
 			//this is currently expected to be in array, cast this into json before saving:
-			'cart_attached_products_ids_quantities_quantities' => $wishlistObject->cart_attached_products_ids_quantities_quantities,//format:['id1'=>quantities]
+			'cart_attached_products_ids_quantities_quantities' => $wishlistObject?->cart_attached_products_ids_quantities_quantities,//format:['id1'=>quantities]
 			'cart_payment_status' => 'pending',//pending or cleared(defaults to pending)
-			//'created_at'=> $request->created_at,
+			//'created_at'=> $request?->created_at,
 			//there's no need for this as eloquent returns "created_at" field by default...
 		];
 

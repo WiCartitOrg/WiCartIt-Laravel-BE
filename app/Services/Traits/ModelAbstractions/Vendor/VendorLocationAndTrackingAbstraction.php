@@ -18,31 +18,31 @@ trait VendorLocationsAndTracksAbstraction
 		$details_saved_status = false;
 		$queryKeysValues = [];
 
-		$queryKeysValues = ['unique_cart_id' => $request->unique_cart_id];
+		$queryKeysValues = ['unique_cart_id' => $request?->unique_cart_id];
 
 		//first check the status of this count_id: 
-		$cartDetails = $this->CartReadSpecificService($queryKeysValues);
+		$cartDetails = $this?->CartReadSpecificService($queryKeysValues);
 		if(!$cartDetails)
 		{
 			throw new \Exception("Cart ID does not exist!");
 		}
-		else if($cartDetails->payment_status === 'pending')
+		else if($cartDetails?->payment_status === 'pending')
 		{
 			throw new \Exception("This Cart is pending! It hasn't been shipped yet!");
 		}
-		else if($cartDetails->payment_status === 'cleared')
+		else if($cartDetails?->payment_status === 'cleared')
 		{
 			//first get if the track table is not empty:
-			$locationTrackDetails = $this->ProductLocationAndTrackingReadSpecificService($queryKeysValues);
+			$locationTrackDetails = $this?->ProductLocationAndTrackingReadSpecificService($queryKeysValues);
 			if($locationTrackDetails)
 			{
 				//return "Cool";
 				//now first get the Vendor token id:
 
-				$newKeysValues = $request->except(['unique_cart_id', 'token_id']);
+				$newKeysValues = $request?->except(['unique_cart_id', 'token_id']);
 
 				//call the update function:
-				$is_details_saved = $this->ProductLocationAndTrackingUpdateSpecificService($queryKeysValues, $newKeysValues);
+				$is_details_saved = $this?->ProductLocationAndTrackingUpdateSpecificService($queryKeysValues, $newKeysValues);
 
 				$details_saved_status = $is_details_saved;
 			}
@@ -51,9 +51,9 @@ trait VendorLocationsAndTracksAbstraction
 			{
 				//return "Cool Thingy";
 				//else:
-				$params_to_be_saved = $request->except('token_id');
+				$params_to_be_saved = $request?->except('token_id');
 				//save all using mass assignment:
-				$is_details_saved = $this->LocationsAndTracksCreateAllService($params_to_be_saved);
+				$is_details_saved = $this?->LocationsAndTracksCreateAllService($params_to_be_saved);
 
 				$details_saved_status = $is_details_saved;
 			}
@@ -65,25 +65,25 @@ trait VendorLocationsAndTracksAbstraction
 
 	protected function VendorFetchLocationsAndTracksService(Request $request)
 	{
-		$queryKeysValues = ['unique_cart_id' => $request->unique_cart_id];
+		$queryKeysValues = ['unique_cart_id' => $request?->unique_cart_id];
 
 		//fetch the cart details(whose aim is to fetch the purchase currency and price from db):
-		$cartDetails = $this->CartReadSpecificService($queryKeysValues);
+		$cartDetails = $this?->CartReadSpecificService($queryKeysValues);
 		if(!$cartDetails)
 		{
 			throw new \Exception("Cart ID does not exist!");
 		}
-		else if($cartDetails->payment_status === 'pending')
+		else if($cartDetails?->payment_status === 'pending')
 		{
 			throw new \Exception("This Cart is pending! It hasn't been shipped yet!");
 		}
 
 		//now fetch all locations details:
-		$allLocationDetails = $this->ProductLocationAndTrackingReadSpecificService($queryKeysValues);
+		$allLocationDetails = $this?->ProductLocationAndTrackingReadSpecificService($queryKeysValues);
 
 		//add purchase currency and price
-		$allLocationDetails['purchase_currency'] = $cartDetails->purchase_currency;
-		$allLocationDetails['purchase_price'] = $cartDetails->purchase_price;
+		$allLocationDetails['purchase_currency'] = $cartDetails?->purchase_currency;
+		$allLocationDetails['purchase_price'] = $cartDetails?->purchase_price;
 
 		return $allLocationDetails;
 	}

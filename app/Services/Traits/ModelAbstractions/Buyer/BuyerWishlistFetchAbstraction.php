@@ -29,13 +29,13 @@ trait BuyerWishlistFetchAbstraction
 	{
 		//assign:
 		$queryKeysValues1 = [
-			'unique_buyer_id' => $request->unique_buyer_id,
+			'unique_buyer_id' => $request?->unique_buyer_id,
 		];
 
-		$all_wishlists = $this->WishlistReadAllLazySpecificService($queryKeysValues1);
+		$all_wishlists = $this?->WishlistReadAllLazySpecificService($queryKeysValues1);
 
 		//get only wishlist ids:
-		$all_wishlists_ids = $all_wishlists->pluck('unique_wishlist_id');
+		$all_wishlists_ids = $all_wishlists?->pluck('unique_wishlist_id');
 
 		//add to summary:
 		$pending_summary['ids'] = $all_wishlists_ids;
@@ -49,15 +49,15 @@ trait BuyerWishlistFetchAbstraction
 	protected function BuyerFetchEachWishlistDetailByIDService(Request $request) : Wishlist | null
 	{	
 		//assign:
-		$buyer_id = $request->unique_buyer_id; 
-		$wishlist_id = $request->unique_wishlist_id;
+		$buyer_id = $request?->unique_buyer_id; 
+		$wishlist_id = $request?->unique_wishlist_id;
 
 		$queryKeysValues = [
 			'unique_buyer_id' => $buyer_id,
 			'unique_wishlist_id' => $wishlist_id,
 		];
 
-		$wishlistsObject =  $this->WishlistReadSpecificService($queryKeysValues);
+		$wishlistsObject =  $this?->WishlistReadSpecificService($queryKeysValues);
 
 		return $wishlistsObject;
 	}
@@ -67,10 +67,10 @@ trait BuyerWishlistFetchAbstraction
 	{
 		//assign:
 		$queryKeysValues1 = [
-			'unique_buyer_id' => $request->unique_buyer_id,
+			'unique_buyer_id' => $request?->unique_buyer_id,
 		];
 
-		$all_wishlists_details = $this->WishlistReadAllLazySpecificService($queryKeysValues1);
+		$all_wishlists_details = $this?->WishlistReadAllLazySpecificService($queryKeysValues1);
 		return $all_wishlists_details;
 	}
 
@@ -78,8 +78,8 @@ trait BuyerWishlistFetchAbstraction
 	protected function BuyerFetchAllWishlistProductsIDsOnlyService(Request $request): LazyCollection
 	{
 		//assign:
-		$buyer_id = $request->unique_buyer_id;
-		$wishlist_id = $request->unique_wishlist_id;
+		$buyer_id = $request?->unique_buyer_id;
+		$wishlist_id = $request?->unique_wishlist_id;
 
 		//query:
 		$queryKeysValues = [
@@ -88,8 +88,8 @@ trait BuyerWishlistFetchAbstraction
 		];
 
 		//first get all the product_ids associated with this wishlist:
-		$thisWishlistDetails =  $this->WishlistReadAllLazyService($queryKeysValues);
-		$product_ids = $thisWishlistDetails->pluck('wishlist_attached_products_ids_quantities');//this should return in array(it's now casted)
+		$thisWishlistDetails =  $this?->WishlistReadAllLazyService($queryKeysValues);
+		$product_ids = $thisWishlistDetails?->pluck('wishlist_attached_products_ids_quantities');//this should return in array(it's now casted)
 		//['product_id' => quantities]...
 		return	$product_ids;
 	}

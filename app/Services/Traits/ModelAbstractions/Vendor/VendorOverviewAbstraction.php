@@ -23,11 +23,11 @@ trait VendorOverviewAbstraction
 	{
 		//get all payment where is_success == true;
 		$queryKeysValues = ['is_success' => true];
-		$allSuccessfulPayDetails = $this->PaymentReadAllLazySpecificService($queryKeysValues);
+		$allSuccessfulPayDetails = $this?->PaymentReadAllLazySpecificService($queryKeysValues);
 		//init:
 		$salesData = array();
 
-		$total_sales_made = $allSuccessfulPayDetails->pay_amount->sum();
+		$total_sales_made = $allSuccessfulPayDetails?->pay_amount?->sum();
 		//add to sales data:
 		$salesData['totalsales'] = $total_sales_made;
 
@@ -36,7 +36,7 @@ trait VendorOverviewAbstraction
 		foreach($month as $each_month)
 		{
 			$monthQueryKeysValues = ['paymentMonth' => $each_month];
-			$salesMadePerMonth = $allSuccessfulPayDetails->where($monthQueryKeysValues)->pay_amount->sum();
+			$salesMadePerMonth = $allSuccessfulPayDetails?->where($monthQueryKeysValues)?->pay_amount?->sum();
 
 			//add this to the sales Data:
 			$salesData['$each_month'] = $salesMadePerMonth;//e.g.['January'=> 50,000]
@@ -49,14 +49,14 @@ trait VendorOverviewAbstraction
 	protected function VendorViewFrequentService()
 	{
 		$queryKeysValues = ['is_success' => true];
-		$allSuccessfulPayDetails = $this->PaymentReadAllLazySpecificService($queryKeysValues);
+		$allSuccessfulPayDetails = $this?->PaymentReadAllLazySpecificService($queryKeysValues);
 
-		$all_cleared_cart_ids = $allSuccessfulPayDetails->cart_id;
+		$all_cleared_cart_ids = $allSuccessfulPayDetails?->cart_id;
 
 		$cartQueryKeysValues = ['cart_id' => $all_cleared_cart_ids];
 		//now use this cleared id to locate bought goods
-		$all_cart_details = $this->CartReadAllLazySpecificService($cartQueryKeysValues);
-		$product_ids = $all_cart_details->Product_id;
+		$all_cart_details = $this?->CartReadAllLazySpecificService($cartQueryKeysValues);
+		$product_ids = $all_cart_details?->Product_id;
 
 		//find the highest occuring ids:
 		//by adding each processed ids to an array:
@@ -81,7 +81,7 @@ trait VendorOverviewAbstraction
      	for($i=0; $i<=20; $i++)
      	{
      		$queryKeysValues = ['Product_id' => $new_arr[$i]];
-     		$frequentBoughtProductDetails = $this->ProductReadSpecificAllLazyService($queryKeysValues);
+     		$frequentBoughtProductDetails = $this?->ProductReadSpecificAllLazyService($queryKeysValues);
      	}
 
      	return $frequentBoughtProductDetails;

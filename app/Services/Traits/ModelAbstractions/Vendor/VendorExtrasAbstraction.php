@@ -22,10 +22,10 @@ trait AdminExtrasAbstraction
     //activate or deactivate referral program
     protected function VendorUpdateReferralDetailsService(Request $request): bool
     {
-        $queryKeysValues = ['token_id' => $request->token_id];
-        $newKeysValues = $request->except('token_id');
+        $queryKeysValues = ['token_id' => $request?->token_id];
+        $newKeysValues = $request?->except('token_id');
 
-        $is_ref_details_updated = $this->VendorUpdateSpecificService($queryKeysValues, $newKeysValues);
+        $is_ref_details_updated = $this?->VendorUpdateSpecificService($queryKeysValues, $newKeysValues);
         
         return  $is_ref_details_updated;
     }
@@ -36,20 +36,20 @@ trait AdminExtrasAbstraction
         $referral_details = [];
 
         //first read all the admin ref details:
-        $queryKeysValues = ['token_id' => $request->token_id];
-        $vendorRefDetails = $this->VendorReadSpecificService($queryKeysValues);
+        $queryKeysValues = ['token_id' => $request?->token_id];
+        $vendorRefDetails = $this?->VendorReadSpecificService($queryKeysValues);
 
         //Now get the count of the buyer links:
         $queryParam = "buyer_referral_link";
-        $buyer_info = $this->BuyerReadSpecificAllTestNullService($queryParam);
+        $buyer_info = $this?->BuyerReadSpecificAllTestNullService($queryParam);
         
-        $ref_count = $buyer_info->count();
+        $ref_count = $buyer_info?->count();
 
         //add all to the data array:
-        $all_buyer_collect =  $this->BuyerReadAllLazyService();
-        $all_bonus_gen_so_far = $all_buyer_collect->pluck('buyer_total_referral_bonus'); 
+        $all_buyer_collect =  $this?->BuyerReadAllLazyService();
+        $all_bonus_gen_so_far = $all_buyer_collect?->pluck('buyer_total_referral_bonus'); 
 
-        $sum_bonus_gen_so_far = $all_bonus_gen_so_far->sum();
+        $sum_bonus_gen_so_far = $all_bonus_gen_so_far?->sum();
         
         $referral_details = [
             'is_ref_active' => $vendorRefDetails['is_referral_prog_activated'],
@@ -67,14 +67,14 @@ trait AdminExtrasAbstraction
 
     protected function VendorDisableReferralProgramService(Request $request): bool
     {
-        $queryKeysValues = ['token_id' => $request->token_id];
+        $queryKeysValues = ['token_id' => $request?->token_id];
         $newKeysValues = [
             'is_referral_prog_activated' => false,
             'referral_bonus' => null,
             'referral_bonus_currency' => null
         ];
 
-        $is_ref_details_updated = $this->VendorUpdateSpecificService($queryKeysValues, $newKeysValues);
+        $is_ref_details_updated = $this?->VendorUpdateSpecificService($queryKeysValues, $newKeysValues);
         
         return  $is_ref_details_updated;
     }
@@ -83,33 +83,33 @@ trait AdminExtrasAbstraction
     {
         //first name and last name
         $queryKeysValues = [
-            'unique_buyer_id' => $request->unique_buyer_id
+            'unique_buyer_id' => $request?->unique_buyer_id
         ];
 
         $queryKeysValues = [
             'payment_status' => 'pending'
         ];
         //all pending carts of this user:
-        $all_pending_carts = $this->CartReadAllLazySpecificService($queryKeysValues)->count();
+        $all_pending_carts = $this?->CartReadAllLazySpecificService($queryKeysValues)?->count();
 
         $queryKeysValues = [
             'payment_status' => 'cleared'
         ];
 
-        $cartModel = $this->CartReadAllLazySpecificService($queryKeysValues);
+        $cartModel = $this?->CartReadAllLazySpecificService($queryKeysValues);
         //all cleared carts of this user:
-        $all_cleared_carts = $cartModel->count();
+        $all_cleared_carts = $cartModel?->count();
 
         //total transactions so far:
-        $total_transaction = $cartModel->pluck('purchase_price')->sum();
+        $total_transaction = $cartModel?->pluck('purchase_price')?->sum();
 
         //sales volume:
         $sales_volume_average = ( ($total_transaction/$all_cleared_carts) / $total_transaction ) * 100;
 
-        $all_cleared_cart_ids = $cartModel->pluck('unique_cart_id');
+        $all_cleared_cart_ids = $cartModel?->pluck('unique_cart_id');
 
         
-        $all_tracked_goods_count = $this->ProductLocationAndTrackingReadAllLazyService()->count();
+        $all_tracked_goods_count = $this?->ProductLocationAndTrackingReadAllLazyService()?->count();
         
         return [
             'all_pending_carts' => $all_pending_carts,

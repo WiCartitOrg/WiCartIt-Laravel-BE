@@ -166,22 +166,22 @@ trait BuyerPaymentExecuteAbstraction
 	protected function BuyerMakePaymentWithNewBankService(Request $request): array 
 	{
 		//init:
-		//first get the specific card details of this buyer:
+		//first get the specific bank details of this buyer:
 		$queryKeysValues = ['unique_buyer_id' => $request?->unique_buyer_id];
 
 		$buyerDetails = $this?->BuyerReadSpecificService($queryKeysValues);
 
-		$userCardDetails = [];
+		$userBankDetails = [];
 		
-		$userCardDetails['customer'] = $request?->unique_buyer_id;
-		//first call all card details and put them in an array:
-		$userCardDetails['buyer_card_type'] = Crypt::decryptString($buyerDetails?->buyer_bank_card_type);
-		$userCardDetails['buyer_card_number'] = Crypt::decryptString($buyerDetails?->buyer_bank_card_number);
-		$userCardDetails['buyer_card_cvv'] = Crypt::decryptString($buyerDetails?->buyer_bank_card_cvv);
-		$userCardDetails['buyer_card_exp_year'] =  Crypt::decryptString($buyerDetails?->buyer_bank_card_expiry_year);
-		$userCardDetails['buyer_card_exp_month'] = Crypt::decryptString($buyerDetails?->buyer_bank_card_expiry_month);
+		$userBankDetails['customer'] = $request?->unique_buyer_id;
+		//first call all bank details and put them in an array:
+		$userBankDetails['buyer_bank_type'] = Crypt::decryptString($buyerDetails?->buyer_bank_bank_type);
+		$userBankDetails['buyer_bank_number'] = Crypt::decryptString($buyerDetails?->buyer_bank_bank_number);
+		$userBankDetails['buyer_bank_cvv'] = Crypt::decryptString($buyerDetails?->buyer_bank_bank_cvv);
+		$userBankDetails['buyer_bank_exp_year'] =  Crypt::decryptString($buyerDetails?->buyer_bank_bank_expiry_year);
+		$userBankDetails['buyer_bank_exp_month'] = Crypt::decryptString($buyerDetails?->buyer_bank_bank_expiry_month);
 
-		$userCardDetails['buyer_email'] = $buyerDetails?->buyer_email;
+		$userBankDetails['buyer_email'] = $buyerDetails?->buyer_email;
 
 		$cartQueryKeysValues = [
 			'unique_buyer_id' => $request?->unique_buyer_id,
@@ -189,18 +189,18 @@ trait BuyerPaymentExecuteAbstraction
 		];
 
 		$cartModel = $this?->CartReadSpecificService($cartQueryKeysValues);
-		$userCardDetails['cart_purchase_currency'] = $cartModel?->purchase_currency;
+		$userBankDetails['cart_purchase_currency'] = $cartModel?->purchase_currency;
 
 		$cart_purchase_price = $cartModel?->purchase_price;
 		$buyer_total_referral_bonus = $buyerDetails?->buyer_total_referral_bonus;
 
-		$userCardDetails['charge_price'] = $cart_purchase_price - $buyer_total_referral_bonus;
+		$userBankDetails['charge_price'] = $cart_purchase_price - $buyer_total_referral_bonus;
 
-		$userCardDetails['pending_cart_id'] = $request?->unique_cart_id;
+		$userBankDetails['pending_cart_id'] = $request?->unique_cart_id;
 
 		
 		//call our payment hooks that will interact with the API:
-		$is_payment_made = $this?->CallStripeService($userCardDetails);
+		$is_payment_made = $this?->CallStripeService($userBankDetails);
 		if($is_payment_made)
 		{
 			//change the cart state from pending to cleared:
@@ -219,34 +219,34 @@ trait BuyerPaymentExecuteAbstraction
 		return [
 			'is_payment_made' => $is_payment_made,
 			'unique_cart_id' => $request?->unique_cart_id,
-			'purchase_currency' => $userCardDetails['cart_purchase_currency'],
+			'purchase_currency' => $userBankDetails['cart_purchase_currency'],
 			'purchase_price' => $cart_purchase_price,
 			'discount' => $buyer_total_referral_bonus
 		];
 			
-		//return $userCardDetails;
+		//return $userBankDetails;
 	}
 
 
 	protected function BuyerMakePaymentWithSavedBankService(Request $request): array 
 	{
 		//init:
-		//first get the specific card details of this buyer:
+		//first get the specific bank details of this buyer:
 		$queryKeysValues = ['unique_buyer_id' => $request?->unique_buyer_id];
 
 		$buyerDetails = $this?->BuyerReadSpecificService($queryKeysValues);
 
-		$userCardDetails = [];
+		$userBankDetails = [];
 		
-		$userCardDetails['customer'] = $request?->unique_buyer_id;
-		//first call all card details and put them in an array:
-		$userCardDetails['buyer_card_type'] = Crypt::decryptString($buyerDetails?->buyer_bank_card_type);
-		$userCardDetails['buyer_card_number'] = Crypt::decryptString($buyerDetails?->buyer_bank_card_number);
-		$userCardDetails['buyer_card_cvv'] = Crypt::decryptString($buyerDetails?->buyer_bank_card_cvv);
-		$userCardDetails['buyer_card_exp_year'] =  Crypt::decryptString($buyerDetails?->buyer_bank_card_expiry_year);
-		$userCardDetails['buyer_card_exp_month'] = Crypt::decryptString($buyerDetails?->buyer_bank_card_expiry_month);
+		$userBankDetails['customer'] = $request?->unique_buyer_id;
+		//first call all bank details and put them in an array:
+		$userBankDetails['buyer_bank_type'] = Crypt::decryptString($buyerDetails?->buyer_bank_bank_type);
+		$userBankDetails['buyer_bank_number'] = Crypt::decryptString($buyerDetails?->buyer_bank_bank_number);
+		$userBankDetails['buyer_bank_cvv'] = Crypt::decryptString($buyerDetails?->buyer_bank_bank_cvv);
+		$userBankDetails['buyer_bank_exp_year'] =  Crypt::decryptString($buyerDetails?->buyer_bank_bank_expiry_year);
+		$userBankDetails['buyer_bank_exp_month'] = Crypt::decryptString($buyerDetails?->buyer_bank_bank_expiry_month);
 
-		$userCardDetails['buyer_email'] = $buyerDetails?->buyer_email;
+		$userBankDetails['buyer_email'] = $buyerDetails?->buyer_email;
 
 		$cartQueryKeysValues = [
 			'unique_buyer_id' => $request?->unique_buyer_id,
@@ -254,18 +254,18 @@ trait BuyerPaymentExecuteAbstraction
 		];
 
 		$cartModel = $this?->CartReadSpecificService($cartQueryKeysValues);
-		$userCardDetails['cart_purchase_currency'] = $cartModel?->purchase_currency;
+		$userBankDetails['cart_purchase_currency'] = $cartModel?->purchase_currency;
 
 		$cart_purchase_price = $cartModel?->purchase_price;
 		$buyer_total_referral_bonus = $buyerDetails?->buyer_total_referral_bonus;
 
-		$userCardDetails['charge_price'] = $cart_purchase_price - $buyer_total_referral_bonus;
+		$userBankDetails['charge_price'] = $cart_purchase_price - $buyer_total_referral_bonus;
 
-		$userCardDetails['pending_cart_id'] = $request?->unique_cart_id;
+		$userBankDetails['pending_cart_id'] = $request?->unique_cart_id;
 
 		
 		//call our payment hooks that will interact with the API:
-		$is_payment_made = $this?->CallStripeService($userCardDetails);
+		$is_payment_made = $this?->CallStripeService($userBankDetails);
 		if($is_payment_made)
 		{
 			//change the cart state from pending to cleared:
@@ -284,12 +284,12 @@ trait BuyerPaymentExecuteAbstraction
 		return [
 			'is_payment_made' => $is_payment_made,
 			'unique_cart_id' => $request?->unique_cart_id,
-			'purchase_currency' => $userCardDetails['cart_purchase_currency'],
+			'purchase_currency' => $userBankDetails['cart_purchase_currency'],
 			'purchase_price' => $cart_purchase_price,
 			'discount' => $buyer_total_referral_bonus
 		];
 			
-		//return $userCardDetails;
+		//return $userBankDetails;
 	}
 
 }
