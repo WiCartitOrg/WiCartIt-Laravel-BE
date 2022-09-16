@@ -436,36 +436,51 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 			});
 		});
 
-	Route::group(['prefix' => 'realtime/', /*'middleware' => ['']*/], function()
-	{	
-		Route::controller(App\Http\Controllers\Buyer\BuyerChatController::class)->group(function()
-		{
-			
+		Route::group(['prefix' => 'realtime/', /*'middleware' => ['']*/], function()
+		{	
+			Route::controller(App\Http\Controllers\Buyer\BuyerChatController::class)->group(function()
+			{
+				Route::post('initiate/buyer/chat/vendor', [
+					'as' => 'buyer.chat.vendor', 
+					//'middleware' => 'init',
+					'uses' => 'BuyerChatVendor'
+				]);
+
+				Route::post('initiate/buyer/chat/admin', [
+					'as' => 'buyer.chat.admin', 
+					//'middleware' => 'init',
+					'uses' => 'BuyerChatAdmin'
+				]);
+			});
 		});
 
-	});
+		Route::group(['prefix' => 'referral/', /*'middleware' => ['']*/], function()
+		{	
+			Route::controller(App\Http\Controllers\Buyer\BuyerReferralController::class)->group(function()
+			{
+				//first check if referral program has been activated by the admin before proceeding:
+				Route::post('generate/unique/referral/link', [
+					'as' => 'referral_link', 
+					//'middleware' => 'init',
+					'uses' => 'GenUniqueReferralLink'
+				]);
 
+				//first check if referral program has been activated by the admin before proceeding:
+				Route::post('fetch/referral/bonus', [
+					//'as' => 'referral_bonus', 
+					//'middleware' => 'init',
+					'uses' => 'ReferralBonus'
+				]);
 
-		//first check if referral program has been activated by the admin before proceeding:
-		Route::post('generate/unique/referral/link', [
-			'as' => 'referral_link', 
-			//'middleware' => 'init',
-    		'uses' => '\Buyer\BuyerReferralController@GenUniqueReferralLink'
-		]);
+				//when a new user clicks the unique referral link generated:
+				Route::get('referral/{unique_buyer_id}', [
+					//'as' => '', 
+					//'middleware' => 'init',
+					'uses' => 'ReferralLinkUse'
+				]);
+			});
+		});
 
-		//first check if referral program has been activated by the admin before proceeding:
-		Route::post('fetch/referral/bonus', [
-			//'as' => 'referral_bonus', 
-			//'middleware' => 'init',
-    		'uses' => '\Buyer\BuyerReferralController@ReferralBonus'
-		]);
-
-		//when a new user clicks the unique referral link generated:
-		Route::get('referral/{unique_buyer_id}', [
-			//'as' => '', 
-			//'middleware' => 'init',
-    		'uses' => '\Buyer\BuyerReferralController@ReferralLinkUse'
-		]);
 
 	});
 
@@ -535,6 +550,7 @@ Route::group(['prefix' => 'v1/vendor/', 'middleware' => ['VendorConfirmLoginStat
 {
 	Route::prefix('dashboard/utils/')->group(function() 
 	{
+
 		Route::prefix('/profile')->group(function()
 		{
 			//This option will be presented to the already logged in user: 
@@ -681,135 +697,159 @@ Route::group(['prefix' => 'v1/vendor/', 'middleware' => ['VendorConfirmLoginStat
 		});
 
 
-	Route::group(['prefix' => 'execute/payment', /*'middleware' => ['DeleteEmptyBillingAndShipping']*/], function()
-	{
-		
-		Route::controller(App\Http\Controllers\Buyer\VendorPaymentExecuteController::class)->group(function()
+		Route::group(['prefix' => 'execute/payment', /*'middleware' => ['DeleteEmptyBillingAndShipping']*/], function()
 		{
-			/*Buyer's Credit Card or other details of means of payment ....
-			note:this should be encrypted...*/
-			Route::post('make/payment/from/wallet/into/new/bank/account/details', [
-				'as' => 'vendor.receive.payment.by.new.bank.account',
-				//'middleware' => 'init',
-				'uses' => 'MakePaymentIntoNewBankAccount'
-			]);
+			Route::controller(App\Http\Controllers\Buyer\VendorPaymentExecuteController::class)->group(function()
+			{
+				/*Buyer's Credit Card or other details of means of payment ....
+				note:this should be encrypted...*/
+				Route::post('make/payment/from/wallet/into/new/bank/account/details', [
+					'as' => 'vendor.receive.payment.by.new.bank.account',
+					//'middleware' => 'init',
+					'uses' => 'MakePaymentIntoNewBankAccount'
+				]);
 
-			Route::patch('make/payment/from/wallet/into/saved/bank/account/details', [
-				'as' => 'vendor.receive.payment.by.saved.bank.account',
-				//'middleware' => 'init',
-				'uses' => 'MakePaymentIntoSavedBankAccount'
-			]);
+				Route::patch('make/payment/from/wallet/into/saved/bank/account/details', [
+					'as' => 'vendor.receive.payment.by.saved.bank.account',
+					//'middleware' => 'init',
+					'uses' => 'MakePaymentIntoSavedBankAccount'
+				]);
 
-			//For later:
-			/*Route::post('make/payment/from/wallet/into/new/crypto/wallet/details', [
-				'as' => 'vendor.receive.payment.by.new.crypto',
-				//'middleware' => 'init',
-				'uses' => 'MakePaymentIntoNewCrypto'
-			]);
+				//For later:
+				/*Route::post('make/payment/from/wallet/into/new/crypto/wallet/details', [
+					'as' => 'vendor.receive.payment.by.new.crypto',
+					//'middleware' => 'init',
+					'uses' => 'MakePaymentIntoNewCrypto'
+				]);
 
-			Route::patch('make/payment/from/wallet/into/saved/crypto/wallet/details', [
-				'as' => 'vendor.receive.payment.by.saved.crypto',
-				//'middleware' => 'init',
-				'uses' => 'MakePaymentIntoSavedCrypto'
-			]);*/
-
+				Route::patch('make/payment/from/wallet/into/saved/crypto/wallet/details', [
+					'as' => 'vendor.receive.payment.by.saved.crypto',
+					//'middleware' => 'init',
+					'uses' => 'MakePaymentIntoSavedCrypto'
+				]);*/
+			});
 		});
-	});
+
+		Route::group(['prefix' => 'track/', /*'middleware' => ['']*/], function()
+		{	
+			//Vendor track product location:
+			Route::controller(App\Http\Controllers\Vendor\VendorLocationsAndTracksController::class)->group(function()
+			{
+				/*Route::put('update/cleared/cart/location', [
+					'as' => '',
+					//'middleware' => 'init',
+					'uses' => 'UpdateLocationDetails'
+				]);*/
+
+				//view all goods in motion and their respective locations:
+				Route::post('view/all/tracked/carts', [
+					//'as' => 'all_tracked_goods', 
+    				'uses' => 'ViewTrackedCarts'
+				]);
+
+				//update tracking details:
+				Route::post('update/tracking/details', [
+					//'as' => 'update_tracking', 
+					'uses' => '\Vendor\VendorTrackController@UpdateTrackingLocation'
+				]);
+
+			});
+		});
 
 
-		Route::post('update/cleared/cart/location', [
-			'as' => '',
-			//'middleware' => 'init',
-    		'uses' => '\Vendor\VendorLocationsAndTracksController@UpdateLocationDetails'
-		]);
+		Route::group(['prefix' => 'realtime/', /*'middleware' => ['']*/], function()
+		{	
+			Route::controller(App\Http\Controllers\Vendor\VendorChatController::class)->group(function()
+			{
+				Route::post('initiate/vendor/chat/buyer', [
+					'as' => 'vendor.chat.buyer', 
+					//'middleware' => 'init',
+					'uses' => 'VendorChatBuyer'
+				]);
 
-		Route::post('fetch/cleared/cart/location', [
-			'as' => '',
-			//'middleware' => 'init',
-    		'uses' => '\Vendor\VendorLocationsAndTracksController@FetchLocationDetails'
-		]);
+				Route::post('initiate/buyer/chat/admin', [
+					'as' => 'vendor.chat.admin', 
+					//'middleware' => 'init',
+					'uses' => 'BuyerChatAdmin'
+				]);
+			});
+		});
 
-		Route::post('update/referral/details', [
-			'as' => '',
-			//'middleware' => 'init',
-    		'uses' => '\Vendor\VendorExtrasController@UpdateReferralDetails'
-		]);
 
-		Route::post('fetch/referral/details', [
-			'as' => '',
-			//'middleware' => 'init',
-    		'uses' => '\Vendor\VendorExtrasController@FetchReferralDetails'
-		]);
+		Route::group(['prefix' => 'referral/', /*'middleware' => ['']*/], function()
+		{	
+			Route::controller(App\Http\Controllers\Vendor\VendorReferralController::class)->group(function()
+			{
+				//activate or deactivate referral program 
+				Route::post('(de-)activate/referral/program', [
+					'as' => 'referral_program', 
+    				'uses' => 'ReferralProgram'
+				]);
 
-		Route::post('disable/referral', [
-			'as' => '',
-			//'middleware' => 'init',
-    		'uses' => '\Vendor\VendorExtrasController@DisableReferral'
-		]);
+				//set bonus amount per click:
+				Route::post('set/referral/bonus', [
+					'as' => 'referral_bonus', 
+    				'uses' => 'ReferralBonus'
+				]);
+
+				Route::get('view/all/referral/links/and/owners', [
+					//'as' => 'view_all_referral_links', 
+					'uses' => 'ViewAllReferralLinks'
+				]);
+
+				Route::put('disable/referral/program', [
+					'as' => '',
+					//'middleware' => 'init',
+					'uses' => 'DisableReferral'
+				]);
+
+			});
+		});
 		
-		/*some of these data will be used for plotting charts on the frontend:
-			include - month, total payment made*/
 
-		Route::post('fetch/general/statistics', [
-			'as' => 'general_statistics', 
-			//'middleware' => 'init',
-    		'uses' => '\Vendor\VendorExtrasController@FetchGeneralStatistics'
-		]);
+		Route::group(['prefix' => 'overview/', /*'middleware' => ['']*/], function()
+		{	
+			Route::controller(App\Http\Controllers\Vendor\VendorOverviewController::class)->group(function()
+			{
+				/*some of these data will be used for plotting charts on the frontend:
+				include - month, total payment made*/
+
+				Route::post('fetch/general/statistics', [
+					'as' => 'fetch.general.statistics', 
+					//'middleware' => 'init',
+					'uses' => 'FetchGeneralStatistics'
+				]);
 		
 
-		Route::get('sales/chart/data', [
-			'as' => 'sales_data', 
-			//'middleware' => 'init',
-    		'uses' => '\Vendor\VendorGeneralController@GetSalesData'
-		]);
+				Route::get('sales/chart/data', [
+					'as' => 'get.sales.data', 
+					//'middleware' => 'init',
+					'uses' => 'GetSalesData'
+				]);
 
-		Route::get('view/frequently/bought/goods', [
-			'as' => 'frequently_bought', 
-			//'middleware' => 'init',
-    		'uses' => '\Vendor\VendorGeneralController@ViewFrequent'
-		]);
+				Route::get('view/frequently/bought/goods', [
+					'as' => 'view.frequently.bought', 
+					//'middleware' => 'init',
+					'uses' => 'ViewFrequent'
+				]);
 
-		//not yet purchased goods..
-		Route::post('view/all/pending/or/cleared/cart/goods/', [
-			'as' => 'pending_or_cleared_cart_goods', 
-    		'uses' => '\Vendor\VendorCartController@ViewCartsByCategory'
-		]);
+			});
+		});
 
-		//send messages as reminders to the owner of these goods to complete their purchases:
-		Route::post('remind/pending/buyer', [
-			//'as' => 'remind_cart_owners', 
-    		'uses' => '\Vendor\VendorCartController@RemindPendingBuyer'
-		]);
+		Route::group(['prefix' => 'extras/', /*'middleware' => ['']*/], function()
+		{	
+			Route::controller(App\Http\Controllers\Vendor\VendorExtrasController::class)->group(function()
+			{
+				//send messages as reminders to the owner of these goods to complete their purchases:
+				//try to use Observers to do this... 
+				Route::post('remind/pending/buyer', [
+					//'as' => 'remind_cart_owners', 
+					'uses' => 'RemindPendingBuyer'
+				]);
 
-		//view all goods in motion and their respective locations:
-		Route::post('view/all/tracked/goods', [
-			//'as' => 'all_tracked_goods', 
-    		'uses' => '\Vendor\VendorTrackController@ViewTrackedGoods'
-		]);
-
-		//update tracking details:
-		Route::post('update/tracking/details', [
-			//'as' => 'update_tracking', 
-    		'uses' => '\Vendor\VendorTrackController@UpdateTrackingLocation'
-		]);
-
-		//activate or deactivate referral program 
-		Route::post('(de-)activate/referral/program', [
-			'as' => 'referral_program', 
-    		'uses' => '\Vendor\VendorExtrasController@ReferralProgram'
-		]);
-
-		//set bonus amount per click:
-		Route::post('set/referral/bonus', [
-			'as' => 'referral_bonus', 
-    		'uses' => '\Vendor\VendorExtrasController@ReferralBonus'
-		]);
-
-		Route::get('view/all/referral/links/and/owners', [
-			//'as' => 'view_all_referral_links', 
-    		'uses' => '\Vendor\VendorExtrasController@ViewAllReferralLinks'
-		]);
-
+			});
+		});
+		
 	});
 
 });
