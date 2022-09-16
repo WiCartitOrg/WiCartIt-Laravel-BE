@@ -98,6 +98,7 @@ final class BuyerPaymentExecuteController extends Controller implements BuyerPay
          
          //this should return in chunks or paginate:
          $paymentMadeDetails = $this?->BuyerMakePaymentWithSavedCardService($request);
+
          if( empty($paymentMadeDetails) )
          {
             throw new \Exception("Payment transaction unsuccessful!");
@@ -149,33 +150,37 @@ final class BuyerPaymentExecuteController extends Controller implements BuyerPay
          }
          
          //this should return in chunks or paginate:
-         $paymentMadeDetails = $this?->BuyerMakePaymentWithNewBankService($request);
-         if( empty($paymentMadeDetails) )
+         $paymentMadeDetailsWithDetails = $this?->BuyerMakePaymentWithNewBankService($request);
+
+         if(!$paymentWasMadeWithDetails)
          {
-            throw new \Exception("Failure! Payment transaction unsuccessful!");
+            throw new \Exception("Payment transaction failure!");
          }
 
-         if(!$paymentMadeDetails['is_payment_made'])
+         if( empty($paymentWasMadeWithDetails) )
          {
-            throw new \Exception("Failure! Payment transaction unsuccessful!");
+            throw new \Exception("Payment transaction failure!");
+         }
+
+         if(!$paymentWasMadeWithDetails['payment_was_made'])
+         {
+            throw new \Exception("Payment transaction failure!");
          }
 
          $status = [
             'code' => 1,
-            'serverStatus' => 'TransactionSuccess!',
-            'transDetails' => $paymentMadeDetails
+            'serverStatus' => 'PaymentTransactionSuccess!',
+            'transactionDetails' => $paymentWasMadeWithDetails,
          ];
-
       }
       catch(\Exception $ex)
       {
-
          $status = [
             'code' => 0,
-            'serverStatus' => 'TransactionFailure!',
+            'serverStatus' => 'PaymentTransactionFailure!',
             'short_description' => $ex?->getMessage()
          ];
-
+         return response()?->json($status, 400);
       }
       /*finally
       {*/
@@ -206,31 +211,30 @@ final class BuyerPaymentExecuteController extends Controller implements BuyerPay
 
          if(!$paymentWasMadeWithDetails)
          {
-            throw new \Exception("Failure! Payment transaction unsuccessful!");
+            throw new \Exception("Payment transaction failure!");
          }
 
          if( empty($paymentWasMadeWithDetails) )
          {
-            throw new \Exception("Failure! Payment transaction unsuccessful!");
+            throw new \Exception("Payment transaction failure!");
          }
 
          if(!$paymentWasMadeWithDetails['payment_was_made'])
          {
-            throw new \Exception("Failure! Payment transaction unsuccessful!");
+            throw new \Exception("Payment transaction failure!");
          }
 
          $status = [
             'code' => 1,
-            'serverStatus' => 'TransactionSuccess!',
+            'serverStatus' => 'PaymentTransactionSuccess!',
             'transactionDetails' => $paymentWasMadeWithDetails,
          ];
-
       }
       catch(\Exception $ex)
       {
          $status = [
             'code' => 0,
-            'serverStatus' => 'TransactionFailure!',
+            'serverStatus' => 'PaymentTransactionFailure!',
             'short_description' => $ex?->getMessage()
          ];
          return response()?->json($status, 400);
