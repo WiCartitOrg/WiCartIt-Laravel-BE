@@ -97,14 +97,14 @@ final class BuyerPaymentExecuteController extends Controller implements BuyerPay
          }
          
          //this should return in chunks or paginate:
-         $paymentMadeDetails = $this?->BuyerMakePaymentWithSavedCardService($request);
+         $paymentWasMadeWithDetails = $this?->BuyerMakePaymentWithSavedCardService($request);
 
-         if( empty($paymentMadeDetails) )
+         if( empty($paymentWasMadeWithDetails) )
          {
             throw new \Exception("Payment transaction unsuccessful!");
          }
 
-         if(!$paymentMadeDetails['payment_was_made'])
+         if(!$paymentWasMadeWithDetails['payment_was_made'])
          {
             throw new \Exception("Payment transaction unsuccessful!");
          }
@@ -112,7 +112,7 @@ final class BuyerPaymentExecuteController extends Controller implements BuyerPay
          $status = [
             'code' => 1,
             'serverStatus' => 'PaymentTransactionSuccess!',
-            'transDetails' => $paymentMadeDetails
+            'transactionDetails' => $paymentWasMadeWithDetails
          ];
 
       }
@@ -150,7 +150,7 @@ final class BuyerPaymentExecuteController extends Controller implements BuyerPay
          }
          
          //this should return in chunks or paginate:
-         $paymentMadeDetailsWithDetails = $this?->BuyerMakePaymentWithNewBankService($request);
+         $paymentWasMadeWithDetails = $this?->BuyerMakePaymentWithNewBankService($request);
 
          if(!$paymentWasMadeWithDetails)
          {
