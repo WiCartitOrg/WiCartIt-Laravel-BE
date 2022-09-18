@@ -52,7 +52,7 @@ trait BuyerCRUD
 		return $readAllModel;
 	}
 
-	protected function BuyerReadSpecificAllTestNullService(string $queryParam): LazyCollection
+	protected function BuyerReadSpecificAllTestNotNullService(string $queryParam): LazyCollection
 	{
 		$readSpecificAllModel = Buyer::lazy()->where($queryParam, "!==", null);
 		return $readSpecificAllModel;

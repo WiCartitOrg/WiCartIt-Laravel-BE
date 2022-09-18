@@ -4,7 +4,7 @@ namespace App\Services\Traits\ModelCRUDs\Buyer;
 
 use Illuminate\Http\Request;
 
-use App\Models\Buyer\Referral;
+use App\Models\General\Referral;
 
 trait ReferralCRUD
 {

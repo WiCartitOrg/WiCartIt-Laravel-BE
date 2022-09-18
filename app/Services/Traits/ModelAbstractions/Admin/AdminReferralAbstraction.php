@@ -1,85 +1,86 @@
 <?php 
 
-namespace App\Services\Traits\ModelAbstractions\Vendor;
+namespace App\Services\Traits\ModelAbstractions\Admin;
 
 use Illuminate\Http\Request;
 
 
-use App\Services\Traits\ModelCRUD\VendorCRUD;
-use App\Services\Traits\ModelCRUD\BuyerCRUD;
-use App\Services\Traits\ModelCRUD\CartCRUD;
-use App\Services\Traits\ModelCRUD\ProductLocationAndTrackingCRUD;
+use App\Services\Traits\ModelCRUDs\Admin\AdminCRUD;
+use App\Services\Traits\ModelCRUDs\Buyer\BuyerCRUD;
+use App\Services\Traits\ModelCRUDs\General\CartCRUD;
+use App\Services\Traits\ModelCRUDs\General\ProductLocationAndTrackingCRUD;
 
 
-trait AdminExtrasAbstraction
+trait AdminReferralAbstraction
 {   
     //inherits all their methods:
-    use VendorCRUD;
+    use AdminCRUD;
     use BuyerCRUD;
     use CartCRUD;
     use ProductLocationAndTrackingCRUD;
 
     //activate or deactivate referral program
-    protected function VendorUpdateReferralDetailsService(Request $request): bool
+    protected function AdminUpdateReferralDetailsService(Request $request): bool
     {
-        $queryKeysValues = ['token_id' => $request?->token_id];
-        $newKeysValues = $request?->except('token_id');
+        $queryKeysValues = [
+            'unique_admin_id' => $request?->unique_admin_id
+        ];
+        $newKeysValues = $request?->except('unique_admin_id');
 
-        $is_ref_details_updated = $this?->VendorUpdateSpecificService($queryKeysValues, $newKeysValues);
+        $ref_detail_was_updated = $this?->AdminUpdateSpecificService($queryKeysValues, $newKeysValues);
         
-        return  $is_ref_details_updated;
+        return   $ref_detail_was_updated;
     }
 
 
-    protected function VendorFetchReferralDetailsService(Request $request)//: array
+    protected function AdminFetchReferralDetailsService(Request $request)//: array
     {
         $referral_details = [];
 
         //first read all the admin ref details:
-        $queryKeysValues = ['token_id' => $request?->token_id];
-        $vendorRefDetails = $this?->VendorReadSpecificService($queryKeysValues);
+        $queryKeysValues = [
+            'unique_admin_id' => $request?->unique_admin_id
+        ];
+        $adminDetails = $this?->AdminReadSpecificService($queryKeysValues);
 
         //Now get the count of the buyer links:
         $queryParam = "buyer_referral_link";
-        $buyer_info = $this?->BuyerReadSpecificAllTestNullService($queryParam);
+        $buyerDetails = $this?->BuyerReadSpecificAllTestNotNullService($queryParam);
         
-        $ref_count = $buyer_info?->count();
+        $ref_count = $buyerDetails?->count();
 
         //add all to the data array:
-        $all_buyer_collect =  $this?->BuyerReadAllLazyService();
-        $all_bonus_gen_so_far = $all_buyer_collect?->pluck('buyer_total_referral_bonus'); 
+        //$all_buyer_collect =  $this?->BuyerReadAllLazyService();
+        $all_bonus_gen_so_far = $buyerDetails?->pluck('buyer_total_referral_bonus'); 
 
         $sum_bonus_gen_so_far = $all_bonus_gen_so_far?->sum();
         
         $referral_details = [
-            'is_ref_active' => $vendorRefDetails['is_referral_prog_activated'],
-            'ref_bonus_currency' => $vendorRefDetails['referral_bonus_currency'],
-            'ref_bonus' =>  $vendorRefDetails['referral_bonus'],
+            'is_ref_active' => $adminDetails['is_referral_prog_activated'],
+            'ref_bonus_currency' => $adminDetails['referral_bonus_currency'],
+            'ref_bonus' =>  $adminDetails['referral_bonus'],
             'ref_links_total' => $ref_count,
             'bonus_generated_so_far' => $sum_bonus_gen_so_far
         ];
-        
-        //return $buyer_info;*/
-       // return $referral_details;
-
         return  $referral_details;
     }
 
-    protected function VendorDisableReferralProgramService(Request $request): bool
+
+    protected function AdminDisableReferralProgramService(Request $request): bool
     {
-        $queryKeysValues = ['token_id' => $request?->token_id];
+        $queryKeysValues = ['unique_admin_id' => $request?->unique_admin_id];
         $newKeysValues = [
             'is_referral_prog_activated' => false,
             'referral_bonus' => null,
             'referral_bonus_currency' => null
         ];
 
-        $is_ref_details_updated = $this?->VendorUpdateSpecificService($queryKeysValues, $newKeysValues);
+        $ref_program_was_disabled = $this?->AdminUpdateSpecificService($queryKeysValues, $newKeysValues);
         
-        return  $is_ref_details_updated;
+        return $ref_program_was_disabled;
     }
 
-    protected function  VendorFetchGeneralStatisticsService(Request $request): array
+    protected function  AdminFetchGeneralStatisticsService(Request $request): array
     {
         //first name and last name
         $queryKeysValues = [

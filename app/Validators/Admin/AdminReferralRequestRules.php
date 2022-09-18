@@ -9,7 +9,7 @@ trait AdminReferralRequestRules
     {
 		//set validation rules:
         $rules = [
-            'token_id' => 'required | exists:admins',
+            'unique_admin_id' => 'required | string | size:10 | exists:admins',
             'is_referral_prog_activated' => 'required',
             'referral_bonus_currency' => 'required',
             'referral_bonus' => 'required',
@@ -22,10 +22,8 @@ trait AdminReferralRequestRules
     {
         //set validation rules:
         $rules = [
-
-            'token_id' => 'required | exists:admins',
+            'unique_admin_id' => 'required | string | size:10 | exists:admins',
         ];
-
         return $rules;
     }
 
@@ -34,9 +32,8 @@ trait AdminReferralRequestRules
     {
         //set validation rules:
         $rules = [
-            'token_id' => 'required | exists:admins',
+            'unique_admin_id' => 'required | string | size:10 | exists:admins',
         ];
-
         return $rules;
     }
 }

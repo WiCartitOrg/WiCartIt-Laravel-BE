@@ -6,9 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 
-use App\Services\Interfaces\AdminReferralInterface;
+use App\Services\Interfaces\Admin\AdminReferralInterface;
 
-use App\Services\Traits\ModelAbstraction\AdminReferralAbstraction;
+use App\Services\Traits\ModelAbstractions\Admin\AdminReferralAbstraction;
 use App\Validators\Admin\AdminReferralRequestRules;
 
 final class AdminReferralController extends Controller implements AdminReferralInterface
@@ -21,9 +21,9 @@ final class AdminReferralController extends Controller implements AdminReferralI
         //$this?->createAdminDefault();
    }
 
+
    public function UpdateReferralDetails(Request $request): JsonResponse
    {
-
       $status = array();
 
       try
@@ -36,36 +36,34 @@ final class AdminReferralController extends Controller implements AdminReferralI
 
          if($validator?->fails())
          {
-            throw new \Exception("Access Error, Not logged in yet!");
+            throw new \Exception("Invalid Input Provided!");
          }
          
-         //this should return in chunks or paginate:
          $ref_state_has_changed = $this?->AdminUpdateReferralDetailsService($request);
-            if( !$ref_state_has_changed )
-            {
-               throw new \Exception("Couldn't change referral program status");
-            }
+         if( !$ref_state_has_changed )
+         {
+            throw new \Exception("Couldn't change referral program status!");
+         }
 
          $status = [
             'code' => 1,
-            'serverStatus' => 'referralDetailsSaved!',
+            'serverStatus' => 'ReferralDetailsSaved!',
          ];
 
       }
       catch(\Exception $ex)
       {
-
          $status = [
             'code' => 0,
-            'serverStatus' => 'referralDetailsNotSaved!',
+            'serverStatus' => 'ReferralDetailsNotSaved!',
             'short_description' => $ex?->getMessage()
          ];
-
+         return response()?->json($status, 400);
       }
-      finally
-      {
+      /*finally
+      {*/
          return response()?->json($status, 200);
-      }
+      //}
    }
 
    
@@ -86,9 +84,8 @@ final class AdminReferralController extends Controller implements AdminReferralI
             throw new \Exception("Access Error, Not logged in yet!");
          }
          
-         //this should return in chunks or paginate:
-         $refDetailsFound = $this?->AdminFetchReferralDetailsService($request);
-         if(empty($refDetailsFound))
+         $referralDetailsFound = $this?->AdminFetchReferralDetailsService($request);
+         if(empty($referralDetailsFound))
          {
             throw new \Exception("Couldn't find any referral details!");
          }
@@ -96,24 +93,24 @@ final class AdminReferralController extends Controller implements AdminReferralI
          $status = [
             'code' => 1,
             'serverStatus' => 'FetchSuccess!',
-            'referral_details' => $refDetailsFound
+            'referral_details' => $referralDetailsFound
          ];
       }
       catch(\Exception $ex)
       {
-
          $status = [
             'code' => 0,
             'serverStatus' => 'FetchError!',
             'short_description' => $ex?->getMessage()
          ];
-
+         return response()?->json($status, 400);
       }
       /*finally
       {*/
          return response()?->json($status, 200);
       //}
    }
+
 
    public function DisableReferral(Request $request): JsonResponse
    {
@@ -132,35 +129,33 @@ final class AdminReferralController extends Controller implements AdminReferralI
             throw new \Exception("Access Error, Not logged in yet!");
          }
          
-         //this should return in chunks or paginate:
-         $ref_disabled = $this?->AdminDisableReferralProgramService($request);
-            if( !$ref_disabled )
-            {
-               throw new \Exception("Couldn't disable the referral program");
-            }
+         $referralDisabled = $this?->AdminDisableReferralProgramService($request);
+
+         if(!$referralDisabled)
+         {
+            throw new \Exception("Couldn't disable the referral program");
+         }
 
          $status = [
             'code' => 1,
             'serverStatus' => 'referralDisabled!',
          ];
-
       }
       catch(\Exception $ex)
       {
-
          $status = [
             'code' => 0,
             'serverStatus' => 'referralNotDisabled!',
             'short_description' => $ex?->getMessage()
          ];
-
+         return response()?->json($status, 400);
       }
-      finally
-      {
+      /*finally
+      {*/
          return response()?->json($status, 200);
-      }
-
+      //}
    }
+
 
    public function FetchGeneralStatistics(Request $request): JsonResponse
    {

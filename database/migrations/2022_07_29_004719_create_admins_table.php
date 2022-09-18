@@ -43,6 +43,11 @@ return new class extends Migration
             $table->string('admin_industry')->nullable();
             $table->json('admin_social_media_handles')->nullable();
 
+            //referral program:
+            $table->string('is_referral_prog_activated')->default(false);
+            $table->string('referral_bonus');
+            $table->enum('referral_bonus_currency', ['NGN','USD','EUR']);//->default('NGN');
+
             //$table->boolean('is_email_verified')->default(false);
             //$table->timestamp('email_verified_at')->nullable();
             //$table->rememberToken();

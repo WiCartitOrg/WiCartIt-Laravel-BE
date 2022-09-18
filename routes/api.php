@@ -92,8 +92,8 @@ Route::group(['prefix' => 'v1/buyer/'], function()
 		]);	
 
 
-		Route::middleware(['auth:sanctum', 'ability:buyer-crud'])->group(function(){
-
+		Route::middleware(['auth:sanctum', 'ability:buyer-crud'])->group(function()
+		{
 			Route::get('fetch/all/products/summary', [
 				'as' => 'search.products',
 				'middleware' => 'BuyerConfirmLoginState',
@@ -147,7 +147,6 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 
 		Route::group(['prefix' => 'cart/', 'middleware' => ['DeleteEmptyCarts']], function()
 		{
-
 			Route::controller(App\Http\Controllers\Buyer\BuyerCartEditController::class)->group(function()
 			{
 				Route::post('add/product/to/pending/cart', [
@@ -476,7 +475,7 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 				Route::get('referral/{unique_buyer_id}', [
 					//'as' => '', 
 					//'middleware' => 'init',
-					'uses' => 'ReferralLinkUse'
+					'uses' => 'FollowReferralLink'
 				]);
 			});
 		});
@@ -968,6 +967,31 @@ Route::group(['prefix' => 'v1/admin/', 'middleware' => ['AdminConfirmLoginState'
 				//'middleware' => 'init',
 				'uses' => '\Admin\AdminGeneralController@ActivateVendor'
 			]);
+		});
+
+		Route::group(['prefix' => 'referral/', /*'middleware' => ['']*/], function()
+		{	
+			Route::controller(App\Http\Controllers\Admin\AdminReferralController::class)->group(function()
+			{
+				Route::post('update/referral/details', [
+					'as' => 'admin.update.referral.details', 
+					//'middleware' => 'init',
+					'uses' => 'UpdateReferralDetails'
+				]);
+
+				Route::get('fetch/referral/details', [
+					'as' => 'admin.fetch.referral.details', 
+					//'middleware' => 'init',
+					'uses' => 'FetchReferralDetails'
+				]);
+
+				//when a new user clicks the unique referral link generated:
+				Route::get('disable/referral/program', [
+					//'as' => '', 
+					//'middleware' => 'init',
+					'uses' => 'DisableReferral'
+				]);
+			});
 		});
 
 	});
