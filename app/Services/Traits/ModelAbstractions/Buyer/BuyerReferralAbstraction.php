@@ -18,20 +18,20 @@ trait BuyerReferralAbstraction
         $referral_link = null;
 
         //first check if admin has activated the referral program:
-        $admin_details = $this->AdminReadAllService()->first();
+        $admin_details = $this?->AdminReadAllService()?->first();
         if(!$admin_details )
         {
             return false;
         }
 
-        $is_referral_activated = $admin_details->is_referral_prog_activated;
+        $is_referral_activated = $admin_details?->is_referral_prog_activated;
 
         if(!$is_referral_activated)
         {
             return false;
         }
 
-        $buyer_id = $request->unique_buyer_id;
+        $buyer_id = $request?->unique_buyer_id;
 
         //check the database if ref link is present:
         $queryKeysValues = ['unique_buyer_id' => $buyer_id];
@@ -43,7 +43,7 @@ trait BuyerReferralAbstraction
         else
         {
             //returns https://wicartit.com.com:
-            $current_domain = $request->getSchemeAndHttpHost();
+            $current_domain = $request?->getSchemeAndHttpHost();
 
             //if it is activated, continue:
             $sub_referral_url = "Backend/public/api/v1/buyer/referral/{$buyer_id}";
@@ -56,7 +56,7 @@ trait BuyerReferralAbstraction
             $newKeysValues = ['buyer_referral_link' => $referral_link];
 
             //save in the referral table: 
-            $referral_link_was_saved =  $this->BuyerUpdateSpecificService($queryKeysValues, $newKeysValues);
+            $referral_link_was_saved =  $this?->BuyerUpdateSpecificService($queryKeysValues, $newKeysValues);
             if(!$referral_link_was_saved)
             {
                 throw new \Exception("Error in saving new referral link! Please try generating another one again");
@@ -70,13 +70,13 @@ trait BuyerReferralAbstraction
     protected function BuyerGetReferralBonusService(Request $request): string | bool
     {
         //first check if admin has activated the referral program:
-        $admin_details = $this->AdminReadAllService()->first();
+        $admin_details = $this?->AdminReadAllService()?->first();
         if(!$admin_details)
         {
             return false;
         }
 
-        $is_referral_activated = $admin_details->is_referral_prog_activated;
+        $is_referral_activated = $admin_details?->is_referral_prog_activated;
 
         if(!$is_referral_activated)
         {
@@ -84,10 +84,10 @@ trait BuyerReferralAbstraction
         }
 
         //then check the admin referral program bonus currency:
-        $bonus_currency = $admin_details->referral_bonus_currency;
+        $bonus_currency = $admin_details?->referral_bonus_currency;
 
         //now back to the buyer, query for their total accumulated bonus:
-        $queryKeysValues = ['unique_buyer_id' => $request->unique_buyer_id];
+        $queryKeysValues = ['unique_buyer_id' => $request?->unique_buyer_id];
         $referral_bonus = $this?->BuyerReadSpecificService($queryKeysValues)?->buyer_total_referral_bonus;
 
         //return array:
@@ -103,13 +103,13 @@ trait BuyerReferralAbstraction
     protected function BuyerFollowReferralLinkService(string $unique_buyer_id)//: string
     {
         //first check if admin has activated the referral program:
-        $admin_details = $this->AdminReadAllService()->first();
+        $admin_details = $this?->AdminReadAllService()?->first();
         if(!$admin_details )
         {
             return false;
         }
 
-        $is_referral_activated = $admin_details->is_referral_prog_activated;
+        $is_referral_activated = $admin_details?->is_referral_prog_activated;
 
         if(!$is_referral_activated)
         {
@@ -117,7 +117,7 @@ trait BuyerReferralAbstraction
         }
 
         //get the admin bonus per click:
-        $bonus_per_click = $admin_details->referral_bonus;
+        $bonus_per_click = $admin_details?->referral_bonus;
 
         //check the buyer table and add bonus acordingly:
         $queryKeysValues = ['unique_buyer_id' => $unique_buyer_id];
@@ -131,7 +131,7 @@ trait BuyerReferralAbstraction
         $newKeysValues = [
             'buyer_total_referral_bonus' => $db_referral_bonus
         ];
-        $new_referral_was_updated = $this->BuyerUpdateSpecificService($queryKeysValues, $newKeysValues);
+        $new_referral_was_updated = $this?->BuyerUpdateSpecificService($queryKeysValues, $newKeysValues);
 
         return $new_referral_was_updated;
     }

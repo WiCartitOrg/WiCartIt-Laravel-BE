@@ -6,18 +6,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 
-use App\Http\Controllers\Validators\VendorExtrasRequestRules;
-use App\Services\Interfaces\VendorExtrasInterface;
-use App\Services\Traits\ModelAbstraction\VendorExtrasAbstraction;
+use App\Services\Interfaces\AdminReferralInterface;
 
-final class VendorReferralController extends Controller //implements ExtrasExtrasInterface, PaymentInterface
+use App\Services\Traits\ModelAbstraction\AdminReferralAbstraction;
+use App\Validators\Admin\AdminReferralRequestRules;
+
+final class AdminReferralController extends Controller implements AdminReferralInterface
 {
-   use VendorExtrasAbstraction;
-   use VendorExtrasRequestRules;
+   use AdminReferralAbstraction;
+   use AdminReferralRequestRules;
 
    public function __construct()
    {
-        //$this?->createVendorDefault();
+        //$this?->createAdminDefault();
    }
 
    public function UpdateReferralDetails(Request $request): JsonResponse
@@ -39,7 +40,7 @@ final class VendorReferralController extends Controller //implements ExtrasExtra
          }
          
          //this should return in chunks or paginate:
-         $ref_state_has_changed = $this?->VendorUpdateReferralDetailsService($request);
+         $ref_state_has_changed = $this?->AdminUpdateReferralDetailsService($request);
             if( !$ref_state_has_changed )
             {
                throw new \Exception("Couldn't change referral program status");
@@ -86,7 +87,7 @@ final class VendorReferralController extends Controller //implements ExtrasExtra
          }
          
          //this should return in chunks or paginate:
-         $refDetailsFound = $this?->VendorFetchReferralDetailsService($request);
+         $refDetailsFound = $this?->AdminFetchReferralDetailsService($request);
          if(empty($refDetailsFound))
          {
             throw new \Exception("Couldn't find any referral details!");
@@ -132,7 +133,7 @@ final class VendorReferralController extends Controller //implements ExtrasExtra
          }
          
          //this should return in chunks or paginate:
-         $ref_disabled = $this?->VendorDisableReferralProgramService($request);
+         $ref_disabled = $this?->AdminDisableReferralProgramService($request);
             if( !$ref_disabled )
             {
                throw new \Exception("Couldn't disable the referral program");
@@ -178,7 +179,7 @@ final class VendorReferralController extends Controller //implements ExtrasExtra
          }
 
          //this should return in chunks or paginate:
-         $generalStatisticsDetails = $this?->VendorFetchGeneralStatisticsService($request);
+         $generalStatisticsDetails = $this?->AdminFetchGeneralStatisticsService($request);
          if( empty($generalStatisticsDetails) ) 
          {
             throw new \Exception("Dashboard statistics details Not Found!");

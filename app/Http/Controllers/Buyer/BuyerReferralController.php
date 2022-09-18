@@ -19,7 +19,7 @@ final class BuyerReferralController extends Controller implements BuyerReferralI
 
    public function __construct()
    {
-      //$this->createAdminDefault();
+      //$this?->createAdminDefault();
    }
 
    public function GenUniqueReferralLink(Request $request): JsonResponse
@@ -29,17 +29,17 @@ final class BuyerReferralController extends Controller implements BuyerReferralI
       try
       {
          //get rules from validator class:
-         $reqRules = $this->genUniqueReferralLinkRules();
+         $reqRules = $this?->genUniqueReferralLinkRules();
 
          //validate here:
-         $validator = Validator::make($request->all(), $reqRules);
+         $validator = Validator::make($request?->all(), $reqRules);
 
-         if($validator->fails())
+         if($validator?->fails())
          {
             throw new \Exception("Access Error, Not logged in yet!");
          }
 
-         $unique_referral_link = $this->BuyerGenReferralLinkService($request);
+         $unique_referral_link = $this?->BuyerGenReferralLinkService($request);
          if(!$unique_referral_link)
          {
             throw new \Exception("Referral Program Not Activated Yet!");
@@ -57,12 +57,12 @@ final class BuyerReferralController extends Controller implements BuyerReferralI
          $status = [
             'code' => 0,
             'serverStatus' => 'ReferralLinkNotFormed!',
-            'short_description' => $ex->getMessage(),
+            'short_description' => $ex?->getMessage(),
          ];
-         return response()->json($status, 400);
+         return response()?->json($status, 400);
       }/*finally
       {*/
-         return response()->json($status, 200);
+         return response()?->json($status, 200);
       //}   
    }
 
@@ -74,17 +74,17 @@ final class BuyerReferralController extends Controller implements BuyerReferralI
       try
       {
          //get rules from validator class:
-         $reqRules = $this->getReferralBonusRules();
+         $reqRules = $this?->getReferralBonusRules();
 
          //validate here:
-         $validator = Validator::make($request->all(), $reqRules);
+         $validator = Validator::make($request?->all(), $reqRules);
 
-         if($validator->fails())
+         if($validator?->fails())
          {
             throw new \Exception("Access Error, Not logged in yet!");
          }
 
-         $referral_bonus_details = $this->BuyerGetReferralBonusService($request);
+         $referral_bonus_details = $this?->BuyerGetReferralBonusService($request);
 
          if(!$referral_bonus_details)
          {
@@ -108,12 +108,12 @@ final class BuyerReferralController extends Controller implements BuyerReferralI
          $status = [
             'code' => 0,
             'serverStatus' => 'FetchError!',
-            'short_description' => $ex->getMessage(),
+            'short_description' => $ex?->getMessage(),
          ];
-         return response()->json($status, 400);
+         return response()?->json($status, 400);
       }/*finally
       {*/
-         return response()->json($status, 200);
+         return response()?->json($status, 200);
       //}
       
    }
@@ -124,21 +124,21 @@ final class BuyerReferralController extends Controller implements BuyerReferralI
       $status = array();
 
       //redirect to our homepage:
-      //$redirect_link = redirect()->to('https://wicartit.com');
+      //$redirect_link = redirect()?->to('https://wicartit.com');
       try
       {
          //get rules from validator class:
-         $reqRules = $this->followReferralLinkRules();
+         $reqRules = $this?->followReferralLinkRules();
 
          //validate here:
-         $validator = Validator::make($request->all(), $reqRules);
+         $validator = Validator::make($request?->all(), $reqRules);
 
-         if($validator->fails())
+         if($validator?->fails())
          {
             throw new \Exception("Access Error, Not logged in yet!");
          }
 
-         $bonus_was_recorded = $this->BuyerFollowReferralLinkService($unique_buyer_id);
+         $bonus_was_recorded = $this?->BuyerFollowReferralLinkService($unique_buyer_id);
          if(!$bonus_was_recorded)
          {
            //though not expecting error here: 
@@ -156,14 +156,14 @@ final class BuyerReferralController extends Controller implements BuyerReferralI
          $status = [
             'code' => 0,
             'serverStatus' => 'ReferralBonusUpdateFailure!',
-            'short_description' => $ex->getMessage(),
+            'short_description' => $ex?->getMessage(),
          ];
-         return response()->json($status, 400);
+         return response()?->json($status, 400);
       }
       /*finally
       {*/
          //redirect to our homepage:
-         return response()->json($status, 200);
+         return response()?->json($status, 200);
       //}
    }
 

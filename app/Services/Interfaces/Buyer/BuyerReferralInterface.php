@@ -8,7 +8,7 @@ use Illuminate\Http\JsonResponse;
 interface BuyerReferralInterface 
 {
     public function GenUniqueReferralLink(Request $request): JsonResponse;
-	public function ReferralBonus(Request $request): JsonResponse;
-    public function ReferralLinkUse(Request $request, $unique_buyer_id): RedirectResponse;
+	public function GetReferralBonus(Request $request): JsonResponse;
+    public function FollowReferralLink(Request $request, $unique_buyer_id): JsonResponse;
 }
     
