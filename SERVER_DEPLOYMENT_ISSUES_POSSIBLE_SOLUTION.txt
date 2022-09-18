@@ -1,0 +1,6 @@
+Temporary solutions include:
+- To zip up the files and upload directly upon each feature change - although this was cumbersome and not very effective.
+- Downgrade tooling and test for Laravel 8 (which supports both >=PHP 7 & 8) on the server (Still in progress)
+- Reach out to the hosting vendor and lodge a complaint for: 
+* the http:// version sometimes loading instead of https:// to assure for security
+* ask some questions as regards their git system to assure for quick server code push and deployment

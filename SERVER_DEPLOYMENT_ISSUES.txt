@@ -1,0 +1,12 @@
+The Cpanel Shared Server which is deployable with only PHP MYSQL Database has certain issues:
+- Its version control system is having certain issues which made it difficult to use 
+CI/CD features with the git system directly 
+
+- The official support is for PHP-7.4; although the support was bumped up to version 8.0.1, 
+the tool being used(Laravel 9) requires version 8.0.2(or greater)...hence their are discepancies in the code execution...
+
+- For example - the migrations artisan commands were not working accordingly, all the database tables could not be created successfully on initialization, 
+hence error in execution of the APIs...
+
+
+- Server sometimes bring the http version of the website(http://) instead of (https://)...this is very dangerous and could expose the app to attacks.
