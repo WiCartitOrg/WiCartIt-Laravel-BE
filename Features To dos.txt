@@ -1,0 +1,14 @@
+- Vendor Wallet
+- Vendor Payment Request & Execution (Not yet implemented Monnify Payment Engine)
+- Vendor Wallet Update based on Buyer cleared cart payment
+
+Referral 
+- Vendor Referral 
+- Buyer Referral
+
+Real Time Chats
+- Buyer Chat
+- Vendor Chat
+
+Notifications(Using Observers)
+

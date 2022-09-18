@@ -7,19 +7,19 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
-use App\Http\Controllers\Validators\BuyerReferralRequestRules;
+use App\Validators\Buyer\BuyerReferralRequestRules;
 
-use App\Services\Interfaces\BuyerReferralInterface;
-use App\Services\Traits\ModelAbstraction\BuyerReferralAbstraction;
+use App\Services\Interfaces\Buyer\BuyerReferralInterface;
+use App\Services\Traits\ModelAbstractions\Buyer\BuyerReferralAbstraction;
 
-final class BuyerReferralController extends Controller //implements BuyerExtrasInterface
+final class BuyerReferralController extends Controller implements BuyerReferralInterface
 {
    use BuyerReferralRequestRules;
    use BuyerReferralAbstraction;
 
    public function __construct()
    {
-        //$this->createAdminDefault();
+      //$this->createAdminDefault();
    }
 
    public function GenUniqueReferralLink(Request $request): JsonResponse
@@ -39,16 +39,15 @@ final class BuyerReferralController extends Controller //implements BuyerExtrasI
             throw new \Exception("Access Error, Not logged in yet!");
          }
 
-         //this should return in chunks or paginate:
          $unique_referral_link = $this->BuyerGenReferralLinkService($request);
          if(!$unique_referral_link)
          {
-            throw new \Exception("Referral link not formed!");
+            throw new \Exception("Referral Program Not Activated Yet!");
          }
 
          $status = [
             'code' => 1,
-            'serverStatus' => 'RefLinkFormed!',
+            'serverStatus' => 'ReferralLinkFormed!',
             'referral_link' =>  $unique_referral_link
          ];
 
@@ -57,25 +56,25 @@ final class BuyerReferralController extends Controller //implements BuyerExtrasI
       {
          $status = [
             'code' => 0,
-            'serverStatus' => 'RefLinkNotFormed!',
+            'serverStatus' => 'ReferralLinkNotFormed!',
             'short_description' => $ex->getMessage(),
          ];
-
+         return response()->json($status, 400);
       }/*finally
       {*/
          return response()->json($status, 200);
-      //}
-      
+      //}   
    }
 
-   public function ReferralBonus(Request $request): JsonResponse
+
+   public function GetReferralBonus(Request $request): JsonResponse
    {
       $status = array();
 
       try
       {
          //get rules from validator class:
-         $reqRules = $this->referralBonusRules();
+         $reqRules = $this->getReferralBonusRules();
 
          //validate here:
          $validator = Validator::make($request->all(), $reqRules);
@@ -85,17 +84,22 @@ final class BuyerReferralController extends Controller //implements BuyerExtrasI
             throw new \Exception("Access Error, Not logged in yet!");
          }
 
-         //this should return in chunks or paginate:
-         $ref_bonus_details = $this->BuyerGetReferralBonusService($request);
+         $referral_bonus_details = $this->BuyerGetReferralBonusService($request);
+
+         if(!$referral_bonus_details)
+         {
+            throw new \Exception("Referral Program Not Activated Yet!");
+         }
+
          if( empty($ref_bonus_details) ) 
          {
-            throw new \Exception("Referral Bonus not found!");
+            throw new \Exception("Buyer Referral Bonus not found!");
          }
 
          $status = [
             'code' => 1,
             'serverStatus' => 'FetchSuccess!',
-            'referral_bonus_details' =>  $ref_bonus_details
+            'referral_bonus_details' => $referral_bonus_details
          ];
 
       }
@@ -106,7 +110,7 @@ final class BuyerReferralController extends Controller //implements BuyerExtrasI
             'serverStatus' => 'FetchError!',
             'short_description' => $ex->getMessage(),
          ];
-
+         return response()->json($status, 400);
       }/*finally
       {*/
          return response()->json($status, 200);
@@ -115,16 +119,16 @@ final class BuyerReferralController extends Controller //implements BuyerExtrasI
    }
 
 
-   public function ReferralLinkUse(Request $request, $unique_buyer_id): RedirectResponse//: JsonResponse
+   public function FollowReferralLink(Request $request, $unique_buyer_id): JsonResponse
    {
       $status = array();
 
       //redirect to our homepage:
-      $redirect_link = redirect()->to('http://localhost/Hodaviah/FrontEnd/Shop/Shopper/buyerShopCategory.html');
+      //$redirect_link = redirect()->to('https://wicartit.com');
       try
       {
          //get rules from validator class:
-         $reqRules = $this->referralLinkUseRules();
+         $reqRules = $this->followReferralLinkRules();
 
          //validate here:
          $validator = Validator::make($request->all(), $reqRules);
@@ -134,40 +138,33 @@ final class BuyerReferralController extends Controller //implements BuyerExtrasI
             throw new \Exception("Access Error, Not logged in yet!");
          }
 
-         
-         $bonus_has_recorded = $this->BuyerReferralLinkUseService($unique_buyer_id);
-         if(!$bonus_has_recorded)
+         $bonus_was_recorded = $this->BuyerFollowReferralLinkService($unique_buyer_id);
+         if(!$bonus_was_recorded)
          {
-           //not expecting error here
+           //though not expecting error here: 
+           throw new \Exception("Referral Program Not Activated Yet!");
          }
-
-         
-         //$redirect_link = 
 
          $status = [
             'code' => 1,
-            'serverStatus' => 'UpdateSuccess!',
-            'referral_link' =>$request->getHttpHost()//$bonus_has_recorded//$unique_buyer_id,//
+            'serverStatus' => 'ReferralBonusUpdateSuccess!',
+            'redirect_to_home_page' => true,
          ];
-
       }
       catch(\Exception $ex)
       {
-
          $status = [
             'code' => 0,
-            'serverStatus' => 'UpdateError!',
+            'serverStatus' => 'ReferralBonusUpdateFailure!',
             'short_description' => $ex->getMessage(),
          ];
-
+         return response()->json($status, 400);
       }
-      finally
-      {
+      /*finally
+      {*/
          //redirect to our homepage:
-         return $redirect_link; 
-      }
-      
+         return response()->json($status, 200);
+      //}
    }
-
 
 }

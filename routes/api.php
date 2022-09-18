@@ -466,10 +466,10 @@ Route::group(['prefix' => 'v1/buyer/', 'middleware' => ['BuyerConfirmLoginState'
 				]);
 
 				//first check if referral program has been activated by the admin before proceeding:
-				Route::post('fetch/referral/bonus', [
+				Route::get('fetch/referral/bonus', [
 					//'as' => 'referral_bonus', 
 					//'middleware' => 'init',
-					'uses' => 'ReferralBonus'
+					'uses' => 'GetReferralBonus'
 				]);
 
 				//when a new user clicks the unique referral link generated:
@@ -538,7 +538,6 @@ Route::prefix('v1/vendor')->group(function()
 			'middleware' => ['VendorEnsureLogoutState','DestroyTokenAfterLogout', 'auth:sanctum', 'ability:vendor-update'],
 			'uses' => 'App\Http\Controllers\Vendor\Auth\VendorAccessController@ImplementResetPassword'
 		]);
-
 	});
 });
 
@@ -704,13 +703,13 @@ Route::group(['prefix' => 'v1/vendor/', 'middleware' => ['VendorConfirmLoginStat
 				/*Buyer's Credit Card or other details of means of payment ....
 				note:this should be encrypted...*/
 				Route::post('make/payment/from/wallet/into/new/bank/account/details', [
-					'as' => 'vendor.receive.payment.by.new.bank.account',
+					'as' => 'vendor.receive.payment.into.new.bank.account',
 					//'middleware' => 'init',
 					'uses' => 'MakePaymentIntoNewBankAccount'
 				]);
 
 				Route::patch('make/payment/from/wallet/into/saved/bank/account/details', [
-					'as' => 'vendor.receive.payment.by.saved.bank.account',
+					'as' => 'vendor.receive.payment.into.saved.bank.account',
 					//'middleware' => 'init',
 					'uses' => 'MakePaymentIntoSavedBankAccount'
 				]);

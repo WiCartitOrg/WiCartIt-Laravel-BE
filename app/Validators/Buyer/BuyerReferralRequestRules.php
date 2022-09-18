@@ -8,24 +8,23 @@ trait BuyerReferralRequestRules
     {
 		//set validation rules:
         $rules = [
-            'unique_buyer_id' => 'required | string | exists:buyers',
-        ];
-
+            'unique_buyer_id' => 'required | string | size:10 | exists:buyers',
+        ]; 
         return $rules;
     }
 
     //admin can change the referral bonus to any amount per click...
-    protected function referralBonusRules(): array
+    protected function getReferralBonusRules(): array
     {
         //set validation rules:
         $rules = [
-            'unique_buyer_id' => 'required | string | exists:buyers',
+            'unique_buyer_id' => 'required | string | size:10 | exists:buyers',
         ];
 
         return $rules;
     }
 
-    protected function referralLinkUseRules(): array
+    protected function followReferralLinkRules(): array
     {
         //set validation rules:
         $rules = [
